@@ -77,10 +77,10 @@ button, input, textarea { font: inherit; color: inherit; }
 @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
 
 /* Lista de temas */
-.temas { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; display: grid; gap: 2px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 40px); overflow-y: auto; }
-@media (max-width: 860px) { .temas { position: static; max-height: 260px; } }
+.temas { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; display: grid; gap: 2px; }
 .temas h3 { padding: 6px 8px 8px; font-size: 1rem; }
-.tema-btn { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: start; text-align: left; background: none; border: 0; border-radius: 8px; padding: 8px; cursor: pointer; }
+.tema-btn { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; text-align: left; background: none; border: 0; border-radius: 8px; padding: 12px 8px; cursor: pointer; }
+.tema-btn + .tema-btn { border-top: 1px solid var(--grid); }
 .tema-btn:hover { background: var(--grid); }
 .tema-btn[aria-current="true"] { background: var(--accent-soft); }
 .tema-btn .n { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: var(--muted); }
@@ -205,7 +205,33 @@ s { color: var(--err); text-decoration-thickness: 2px; }
 .bloqueado { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 28px; display: grid; gap: 10px; }
 .fin { background: var(--ok-soft); border: 1px solid var(--ok); color: var(--ink); border-radius: var(--radius); padding: 16px 20px; display: grid; gap: 4px; }
 .fin b { color: var(--ok); }
-/* Panel "Hoy" y guardado en GitHub */
+/* Navegación tipo app: inicio con menú, listas de temas y cada tema por pasos */
+[hidden] { display: none !important; }
+.barra-nav { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px; background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); }
+.barra-nav button { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; min-height: 42px; flex: none; }
+.barra-nav #nav-titulo { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.vista-inicio { display: grid; gap: 16px; }
+.seguir { display: grid; gap: 6px; text-align: left; width: 100%; background: var(--accent-soft); color: var(--ink); border: 2px solid var(--accent); border-radius: var(--radius); padding: 18px 20px; cursor: pointer; }
+.seguir b { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.2; }
+.seguir .cta { justify-self: start; margin-top: 6px; background: var(--accent); color: var(--surface); font-weight: 800; padding: 10px 18px; border-radius: 99px; }
+.menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.menu-item { display: grid; gap: 4px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; cursor: pointer; min-height: 120px; align-content: start; }
+.menu-item .ico { font-size: 1.7rem; line-height: 1.2; }
+.menu-item b { font-family: var(--font-display); font-size: 1.1rem; line-height: 1.2; }
+.menu-item small { color: var(--muted); font-size: 0.82rem; line-height: 1.3; }
+.vista-lista { display: grid; gap: 12px; }
+.pasos-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.paso-btn { display: flex; gap: 8px; align-items: center; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; line-height: 1.25; min-height: 50px; }
+.paso-btn .pn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; flex: none; font-size: 0.8rem; }
+.paso-btn.ok .pn { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.paso-btn.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.paso-btn.on .pn { border-color: var(--accent); }
+.objetivos summary { cursor: pointer; }
+.pasos-nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.pasos-nav button { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 16px; font-weight: 700; cursor: pointer; min-height: 48px; }
+.pasos-nav button.prim { background: var(--accent); border-color: var(--accent); color: var(--surface); margin-left: auto; }
+
+/* Guardado en GitHub */
 .hoy { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 12px; }
 .hoy h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); }
 .hoy .bloque { display: grid; gap: 6px; }
@@ -217,7 +243,8 @@ s { color: var(--err); text-decoration-thickness: 2px; }
 .gh { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; }
 .gh summary { cursor: pointer; font-weight: 700; }
 .gh summary small { font-weight: 400; color: var(--muted); }
-.gh .gh-cuerpo { display: grid; gap: 10px; margin-top: 12px; }
+.gh { display: grid; gap: 10px; }
+.gh .gh-cuerpo { display: grid; gap: 10px; }
 .gh ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
 .gh input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-family: var(--font-mono); font-size: 0.9rem; }
 .gh .fila { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -229,7 +256,9 @@ s { color: var(--err); text-decoration-thickness: 2px; }
 </style>
 
 <div class="wrap">
-  <header class="top">
+  <nav class="barra-nav" id="barra-nav" hidden><button id="volver">← Volver</button><span id="nav-titulo"></span><button id="menu-btn">☰ Menú</button></nav>
+
+  <header class="top" id="v-top">
     <div class="top-title">
       <span class="eyebrow">Análisis Matemático II · Final del miércoles 2 de diciembre</span>
       <h1>Aula de estudio</h1>
@@ -241,10 +270,11 @@ s { color: var(--err); text-decoration-thickness: 2px; }
     </div>
   </header>
 
-  <section class="hoy" id="hoy" aria-label="Lo que toca hoy"></section>
+  <section class="vista-inicio" id="v-inicio" aria-label="Menú"></section>
 
-  <details class="gh" id="gh-panel">
-    <summary>Guardar mi avance en GitHub · <small id="gh-estado">sin conectar (el avance queda solo en este navegador)</small></summary>
+  <section class="gh" id="v-avance" hidden>
+    <h2>Guardar mi avance</h2>
+    <p>Estado: <b id="gh-estado">sin conectar (el avance queda solo en este navegador)</b></p>
     <div class="gh-cuerpo">
       <p>Conectado, tu avance se guarda en tu repositorio y se ve igual en el celular y en la computadora. Claude también lo puede leer para actualizar el plan.</p>
       <ol>
@@ -260,15 +290,13 @@ s { color: var(--err); text-decoration-thickness: 2px; }
         <button id="gh-quitar">Desconectar este dispositivo</button>
       </div>
     </div>
-  </details>
+  </section>
 
-  <div class="layout">
-    <nav class="temas" aria-label="Temas del plan">
-      <h3>Plan de estudio</h3>
-      <div id="lista-temas" style="display:grid;gap:2px"></div>
-    </nav>
-    <main id="tema" class="tema"></main>
-  </div>
+  <section class="vista-lista" id="v-lista" hidden>
+    <h2 id="lista-titulo"></h2>
+    <div id="lista-temas" class="temas"></div>
+  </section>
+  <main id="tema" class="tema" hidden></main>
 </div>
 
 <script>
@@ -1186,7 +1214,8 @@ let ghSha = null, ghTimer = null, ghOcupado = false, ghPendiente = false;
 function b64enc(s) { return btoa(unescape(encodeURIComponent(s))); }
 function b64dec(s) { return decodeURIComponent(escape(atob(s.replace(/\s/g, "")))); }
 function hora() { return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }); }
-function setGh(txt) { const el = document.getElementById("gh-estado"); if (el) el.textContent = txt; }
+let ghTexto = "sin conectar";
+function setGh(txt) { ghTexto = txt; const sy = document.getElementById("sync"); if (sy) sy.textContent = ghToken ? "Tu avance se guarda en GitHub: lo ves igual en el celular y en la compu." : "Tu avance se guarda solo en este navegador."; for (const id of ["gh-estado", "menu-gh"]) { const el = document.getElementById(id); if (el) el.textContent = txt; } }
 function ghError(status) {
   if (status === 401) return "el token no es válido o venció: creá uno nuevo";
   if (status === 403 || status === 404) return "el token no tiene permiso de escritura sobre xkadmn/anmat";
@@ -1256,30 +1285,75 @@ document.addEventListener("visibilitychange", () => {
 
 // ---------------- Plan diario (sale del Excel) ----------------
 const PLAN = [{"f": "2026-10-27", "ej": "—", "tema": "Día sin estudio", "repaso": "—", "meta": "No se pudo estudiar. El plan se corrió un día y se sacó el mix de derivadas del 2/11 (se practica en el mini simulacro del 9/11)."}, {"f": "2026-10-28", "ej": "Base + Ej. 1", "tema": "Base 0.1: Factorizar y simplificar fracciones + Radianes y gráficas de sen y cos", "repaso": "—", "meta": "Primero la base 0.1 en la página Aula (síntesis, un video por subtema y ejercicios). Después: Convertir grados ↔ radianes. Graficar sen(x) y cos(x) con tabla y verificar en GeoGebra."}, {"f": "2026-10-29", "ej": "Base + Ej. 1", "tema": "Base 0.2: Signos, orden de las operaciones y fracciones + Amplitud, período y desfase", "repaso": "Base 0.1: Factorizar y simplificar fracciones · Radianes y gráficas de sen y cos", "meta": "Primero la base 0.2 en la página Aula (síntesis, un video por subtema y ejercicios). Después: Identificar A, B y C en A·sen(Bx+C). Calcular amplitud, período y desfase en 8 ejercicios (incluir B negativo)."}, {"f": "2026-10-30", "ej": "Base + Ej. 1", "tema": "Bases 0.3 y 0.4: Potencias y raíces · Distributiva, factor común y productos notables + Práctica tipo examen del Ej. 1", "repaso": "Base 0.2: Signos, orden de las operaciones y fracciones · Amplitud, período y desfase", "meta": "Primero las bases 0.3 y 0.4 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 10 ejercicios tipo examen (5 minutos o menos cada uno). Sumar dominio, imagen, ceros y la gráfica de tg(x) (Clase 2)."}, {"f": "2026-10-31", "ej": "Base + Ej. 2", "tema": "Base 0.5: Límites + Derivada por definición y tabla de derivadas", "repaso": "Base 0.1: Factorizar y simplificar fracciones · Base 0.3: Potencias y raíces · Base 0.4: Distributiva, factor común y productos notables · Radianes y gráficas de sen y cos", "meta": "Primero la base 0.5 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 3 derivadas por definición (límite del cociente incremental). Explicar la derivada como pendiente de la tangente. Memorizar la tabla (incluye ln, logₐ, aˣ y raíces). 20 derivadas directas."}, {"f": "2026-11-01", "ej": "Ej. 2", "tema": "Suma, producto y cociente", "repaso": "Base 0.2: Signos, orden de las operaciones y fracciones · Base 0.5: Límites · Amplitud, período y desfase · Derivada por definición y tabla de derivadas", "meta": "15 derivadas con producto y cociente, simplificando el resultado."}, {"f": "2026-11-02", "ej": "Base + Ej. 2", "tema": "Base 0.6: Funciones, rectas y parábolas + Regla de la cadena", "repaso": "Base 0.3: Potencias y raíces · Base 0.4: Distributiva, factor común y productos notables · Suma, producto y cociente", "meta": "Primero la base 0.6 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 15 derivadas con regla de la cadena, por ejemplo (4−2x)²."}, {"f": "2026-11-03", "ej": "Ej. 2", "tema": "Recta tangente y recta normal", "repaso": "Base 0.5: Límites · Base 0.6: Funciones, rectas y parábolas · Derivada por definición y tabla de derivadas · Regla de la cadena", "meta": "Aprender los pasos (punto, pendiente, ecuación). Pendiente de la normal = −1/m. 6 ejercicios."}, {"f": "2026-11-04", "ej": "Base + Ej. 2", "tema": "Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini + Tangente y normal con cociente y cadena", "repaso": "Base 0.1: Factorizar y simplificar fracciones · Radianes y gráficas de sen y cos · Suma, producto y cociente · Recta tangente y recta normal", "meta": "Primero la base 0.7 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 6 ejercicios como (x−4)/(x+2) en x=−1 y (4−2x)² en x=1."}, {"f": "2026-11-05", "ej": "Base + Ej. 2", "tema": "Base 0.8: Número e y logaritmo natural + Problemas inversos de recta tangente", "repaso": "Base 0.2: Signos, orden de las operaciones y fracciones · Base 0.6: Funciones, rectas y parábolas · Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini · Amplitud, período y desfase · Regla de la cadena", "meta": "Primero la base 0.8 en la página Aula (síntesis, un video por subtema y ejercicios). Después: Hallar el punto con pendiente dada, la tangente paralela a una recta y un parámetro (Clase 4, actividades 2 a 4). Después, 3 ejercicios tipo examen del Ej. 2 con reloj."}, {"f": "2026-11-06", "ej": "Ej. 3", "tema": "Primitiva, integrales inmediatas y verificar derivando", "repaso": "Base 0.3: Potencias y raíces · Base 0.4: Distributiva, factor común y productos notables · Base 0.8: Número e y logaritmo natural · Recta tangente y recta normal · Problemas inversos de recta tangente", "meta": "20 integrales inmediatas, con raíces y potencias negativas (√x = x^½, 1/x² = x⁻²). Usar propiedades de potencias (eᵃ·eᵇ = eᵃ⁺ᵇ). Verificar cada una derivando."}, {"f": "2026-11-07", "ej": "Ej. 3", "tema": "Integración por sustitución", "repaso": "Base 0.5: Límites · Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini · Derivada por definición y tabla de derivadas · Primitiva, integrales inmediatas y verificar derivando", "meta": "10 integrales por sustitución, eligiendo bien u y du."}, {"f": "2026-11-08", "ej": "Ej. 3", "tema": "Sustitución que da logaritmo", "repaso": "Base 0.8: Número e y logaritmo natural · Suma, producto y cociente · Problemas inversos de recta tangente · Integración por sustitución", "meta": "8 ejercicios tipo ∫(2x−1)/(x²−x+2)dx, verificando cada uno."}, {"f": "2026-11-09", "ej": "Ej. 1-3", "tema": "Mini simulacro de los Ej. 1, 2 y 3", "repaso": "Base 0.6: Funciones, rectas y parábolas · Regla de la cadena · Primitiva, integrales inmediatas y verificar derivando · Sustitución que da logaritmo", "meta": "Simulacro de 30 minutos, corrección y registro de errores."}, {"f": "2026-11-10", "ej": "Ej. 5", "tema": "Integración por partes", "repaso": "Recta tangente y recta normal · Integración por sustitución", "meta": "8 ejercicios (x·eˣ, x·sen x, ln x). Partes aplicada dos veces (x²·eˣ). Saber elegir u y dv."}, {"f": "2026-11-11", "ej": "Ej. 3 y 5", "tema": "Elegir el método de integración", "repaso": "Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini · Sustitución que da logaritmo · Integración por partes", "meta": "15 integrales mezcladas: decidir el método antes de resolver (inmediata, sustitución o partes)."}, {"f": "2026-11-12", "ej": "Ej. 4", "tema": "Integral definida y regla de Barrow", "repaso": "Base 0.8: Número e y logaritmo natural · Problemas inversos de recta tangente · Elegir el método de integración", "meta": "8 integrales definidas con Barrow, cuidando signos y fracciones."}, {"f": "2026-11-13", "ej": "Ej. 4", "tema": "Práctica de Barrow con distributiva", "repaso": "Primitiva, integrales inmediatas y verificar derivando · Integración por partes · Integral definida y regla de Barrow", "meta": "8 ejercicios tipo ∫−(x−2)(x+3)dx: primero distribuir, después integrar."}, {"f": "2026-11-14", "ej": "Ej. 5", "tema": "Área bajo la curva", "repaso": "Integración por sustitución · Elegir el método de integración", "meta": "6 ejercicios con gráfico. Saber qué hacer cuando f es negativa."}, {"f": "2026-11-15", "ej": "Ej. 5", "tema": "Partes + Barrow (área)", "repaso": "Sustitución que da logaritmo · Integral definida y regla de Barrow · Área bajo la curva", "meta": "5 ejercicios tipo área de x·eˣ entre x=0 y x=1."}, {"f": "2026-11-16", "ej": "Ej. 3-5", "tema": "Mini simulacro de los Ej. 3, 4 y 5", "repaso": "—", "meta": "Simulacro de 30 minutos, corrección y registro de errores."}, {"f": "2026-11-17", "ej": "Ej. 6", "tema": "Área entre dos curvas", "repaso": "Integración por partes · Área bajo la curva", "meta": "Hallar intersecciones y plantear techo − piso. 5 ejercicios parábola–recta."}, {"f": "2026-11-18", "ej": "Ej. 6", "tema": "Intersecciones con cúbicas", "repaso": "Elegir el método de integración · Área entre dos curvas", "meta": "Factor común y Ruffini. 5 ejercicios tipo x³−2x+4 y 4+2x."}, {"f": "2026-11-19", "ej": "Ej. 6", "tema": "Práctica tipo examen del Ej. 6", "repaso": "Integral definida y regla de Barrow · Intersecciones con cúbicas", "meta": "4 ejercicios tipo examen, cada uno en 12 minutos o menos."}, {"f": "2026-11-20", "ej": "Todos", "tema": "SIMULACRO: final 2 de la foto", "repaso": "Área entre dos curvas", "meta": "60 minutos con reloj, sin apuntes. Anotar el puntaje en la hoja Simulacros."}, {"f": "2026-11-21", "ej": "Todos", "tema": "Corrección y refuerzo", "repaso": "Área bajo la curva · Intersecciones con cúbicas", "meta": "Corregir el simulacro, cargar errores y reforzar el ejercicio más flojo."}, {"f": "2026-11-22", "ej": "Todos", "tema": "SIMULACRO: final 1 de la foto", "repaso": "Todos los temas (simulacro)", "meta": "60 minutos con reloj, sin apuntes. Anotar el puntaje en la hoja Simulacros."}, {"f": "2026-11-23", "ej": "Todos", "tema": "Corrección y explicar en voz alta", "repaso": "Todos los temas (simulacro)", "meta": "Corregir y explicar en voz alta un ejercicio de cada tipo."}, {"f": "2026-11-24", "ej": "Todos", "tema": "Simulacro 3: tu último final", "repaso": "Área entre dos curvas", "meta": "En la página (Simulacros, S3): 60 minutos con reloj, después cargá tus resultados y mirá la resolución. En este simulacro el Ej. 5 son puntos críticos y el Ej. 6, el área entre la curva y su tangente."}, {"f": "2026-11-25", "ej": "Extra", "tema": "Puntos críticos, crecimiento y extremos", "repaso": "Intersecciones con cúbicas", "meta": "Clases 7 y 8: puntos críticos, intervalos de crecimiento con tabla de signos, máximos y mínimos. 8 ejercicios."}, {"f": "2026-11-26", "ej": "Todos", "tema": "Simulacro 4", "repaso": "Puntos críticos, crecimiento y extremos", "meta": "60 minutos con reloj. Corrección y registro de errores."}, {"f": "2026-11-27", "ej": "Extra", "tema": "Concavidad, inflexión y estudio completo de una función", "repaso": "—", "meta": "Clase 9: segunda derivada, concavidad y puntos de inflexión. 2 estudios completos de función, verificando el gráfico en GeoGebra."}, {"f": "2026-11-28", "ej": "Todos", "tema": "Simulacro 5", "repaso": "Puntos críticos, crecimiento y extremos · Concavidad, inflexión y estudio completo de una función", "meta": "60 minutos con reloj. Corrección y registro de errores."}, {"f": "2026-11-29", "ej": "Todos", "tema": "Simulacro 6", "repaso": "Todos los temas (simulacro)", "meta": "60 minutos con reloj. Corrección y registro de errores."}, {"f": "2026-11-30", "ej": "Todos", "tema": "Cuaderno de errores y puntos flojos", "repaso": "Concavidad, inflexión y estudio completo de una función", "meta": "Rehacer los ejercicios donde te equivocaste y practicar los ejercicios con menos puntaje en los simulacros."}, {"f": "2026-12-01", "ej": "Todos", "tema": "Repaso liviano y descanso", "repaso": "Todos los temas (simulacro)", "meta": "Repasar la tabla de derivadas e integrales y los pasos de cada método. Dormir bien."}, {"f": "2026-12-02", "ej": "—", "tema": "EXAMEN FINAL", "repaso": "—", "meta": "¡A rendir! Empezar por los ejercicios más seguros y justificar cada paso."}];
-function isoHoy() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
 function temasEn(texto) { const tl = texto.toLowerCase(); return TEMAS.filter(t => tl.includes(t.titulo.toLowerCase()) || (t.alias && tl.includes(t.alias)) || (t.grupo === "base" && tl.includes("base " + t.num))); }
-function irATema(id) { actual = id; try { localStorage.setItem(LS_KEY + "-tema", actual); } catch (e) {} render(); document.getElementById("tema").scrollIntoView({ block: "start", behavior: "smooth" }); }
-function botonTema(t, gris) { return `<button class="ir ${temaHecho(t.id) ? "done" : gris ? "gris" : ""}" data-ir="${t.id}">${temaHecho(t.id) ? "✓ " : ""}${t.grupo === "base" ? "Base " : t.grupo === "simulacro" ? "" : "Tema "}${t.num} · ${t.titulo}</button>`; }
-function renderHoy() {
-  const el = document.getElementById("hoy");
-  const hoy = isoHoy();
-  let fila = PLAN.find(p => p.f === hoy);
-  let titulo = "Hoy";
-  if (!fila && PLAN.length && hoy < PLAN[0].f) { fila = PLAN[0]; titulo = "Primer día del plan"; }
-  if (!fila) { el.innerHTML = `<h2>El plan terminó</h2><p class="meta">¡Suerte en el final!</p>`; return; }
-  const deHoy = temasEn(fila.tema);
-  const repasos = temasEn(fila.repaso).filter(t => !deHoy.includes(t));
-  const atrasados = TEMAS.filter(t => t.fecha < hoy && CONTENIDO[t.id] && !temaHecho(t.id) && !deHoy.includes(t) && !repasos.includes(t));
-  const idx = PLAN.indexOf(fila), man = PLAN[idx + 1];
-  let h = `<div class="bloque"><span class="eyebrow">${titulo} · ${fechaLarga(fila.f)}${fila.ej && fila.ej !== "—" ? " · " + fila.ej : ""}</span><h2>${fila.tema}</h2><p class="meta">${fila.meta}</p></div>`;
-  if (deHoy.length) h += `<div class="chips">${deHoy.map(t => botonTema(t)).join("")}</div>`;
-  if (repasos.length) h += `<div class="bloque"><span class="eyebrow">Repasar primero (bloque 1)</span><div class="chips">${repasos.map(t => botonTema(t, true)).join("")}</div></div>`;
-  else if (fila.repaso && fila.repaso !== "—") h += `<div class="bloque"><span class="eyebrow">Repasar primero (bloque 1)</span><p>${fila.repaso}</p></div>`;
-  if (atrasados.length) h += `<div class="bloque"><span class="eyebrow">Quedaron pendientes de días anteriores</span><div class="chips">${atrasados.map(t => botonTema(t, true)).join("")}</div></div>`;
-  if (man) h += `<p class="meta"><b>Mañana:</b> ${man.tema}</p>`;
+// Orden en que conviene estudiar (el del plan), sin depender de la fecha: se sigue a tu ritmo.
+const ORDEN = (() => { const o = []; for (const p of PLAN) for (const t of temasEn(p.tema)) if (!o.includes(t)) o.push(t); for (const t of TEMAS) if (!o.includes(t)) o.push(t); return o; })();
+const PASOS = [["sintesis", "Síntesis"], ["concepto", "Video de concepto"], ["ejemplos", "Video de ejercicios"], ["ejercicios", "Ejercicios"], ["autoeval", "Autoevaluación"]];
+const GRUPOS = { base: "Bases · Tema 0", examen: "Temas del examen", simulacro: "Simulacros" };
+function nombreTema(t) { return (t.grupo === "base" ? "Base " : t.grupo === "simulacro" ? "" : "Tema ") + t.num + " · " + t.titulo; }
+function primerPaso(id) { const c = CONTENIDO[id], p = pasosTema(id); if (!c || c.simulacro) return 0; const i = PASOS.findIndex(([k]) => !p[k]); return i < 0 ? 0 : i; }
+function siguienteTema() { return ORDEN.find(t => CONTENIDO[t.id] && temaEmpezado(t.id) && !temaHecho(t.id)) || ORDEN.find(t => !temaHecho(t.id)); }
+function contarGrupo(g) { const ts = TEMAS.filter(t => t.grupo === g); return `${ts.filter(t => temaHecho(t.id)).length} de ${ts.length} terminados`; }
+function renderInicio() {
+  const el = document.getElementById("v-inicio");
+  const sig = siguienteTema();
+  let h = "";
+  if (sig) {
+    const c = CONTENIDO[sig.id];
+    const paso = c && !c.simulacro ? "Paso: " + PASOS[primerPaso(sig.id)][1] : "";
+    h += `<button class="seguir" data-ir="#tema-${sig.id}"><span class="eyebrow">${temaEmpezado(sig.id) ? "Seguí donde quedaste" : "Lo que sigue"}</span><b>${nombreTema(sig)}</b><span>${c ? paso : "Todavía no está preparado: pedile a Claude que lo prepare."}</span><span class="cta">▶ Estudiar</span></button>`;
+    const despues = ORDEN.filter(t => t !== sig && !temaHecho(t.id)).slice(0, 2);
+    if (despues.length) h += `<p class="meta"><b>Después:</b> ${despues.map(nombreTema).join(" · ")}</p>`;
+  } else h += `<div class="seguir"><b>¡Terminaste todos los temas!</b><span>Seguí con los simulacros.</span></div>`;
+  h += `<div class="menu">
+    <button class="menu-item" data-ir="#lista-base"><span class="ico">🧱</span><b>Bases</b><small>Lo de Análisis I y del secundario · ${contarGrupo("base")}</small></button>
+    <button class="menu-item" data-ir="#lista-examen"><span class="ico">📘</span><b>Temas del examen</b><small>${contarGrupo("examen")}</small></button>
+    <button class="menu-item" data-ir="#lista-simulacro"><span class="ico">⏱</span><b>Simulacros</b><small>El examen con reloj</small></button>
+    <button class="menu-item" data-ir="#avance"><span class="ico">☁</span><b>Guardar mi avance</b><small id="menu-gh">${ghTexto}</small></button>
+  </div>`;
   el.innerHTML = h;
-  el.querySelectorAll("[data-ir]").forEach(b => b.onclick = () => irATema(b.dataset.ir));
+  el.querySelectorAll("[data-ir]").forEach(b => b.onclick = () => { location.hash = b.dataset.ir; });
 }
+function renderLista() {
+  document.getElementById("lista-titulo").textContent = GRUPOS[grupoLista];
+  const lista = document.getElementById("lista-temas");
+  lista.innerHTML = "";
+  TEMAS.filter(t => t.grupo === grupoLista).forEach(t => {
+    const b = document.createElement("button");
+    b.className = "tema-btn" + (temaHecho(t.id) ? " done" : temaEmpezado(t.id) ? " started" : "") + (CONTENIDO[t.id] ? "" : " lock");
+    const c = CONTENIDO[t.id];
+    const estado = temaHecho(t.id) ? "terminado" : temaEmpezado(t.id) ? (c.simulacro ? "empezado" : "empezado · seguís en " + PASOS[primerPaso(t.id)][1]) : c ? "sin empezar" : "todavía no está preparado";
+    b.innerHTML = `<span class="n">${temaHecho(t.id) ? "✓" : t.num}</span><span class="t">${t.titulo}<small>${t.ej} · ${estado}</small></span>`;
+    b.onclick = () => { location.hash = "#tema-" + t.id; };
+    lista.appendChild(b);
+  });
+}
+
+// ---------------- Navegación (el botón atrás del celular funciona) ----------------
+let vista = "inicio", grupoLista = "base", pasoActual = 0;
+function mostrar() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  let m;
+  if ((m = h.match(/^tema-([a-z0-9]+)$/)) && TEMAS.some(t => t.id === m[1])) {
+    actual = m[1]; try { localStorage.setItem(LS_KEY + "-tema", actual); } catch (e) {}
+    pasoActual = primerPaso(actual);
+    vista = "tema";
+  } else if ((m = h.match(/^lista-(base|examen|simulacro)$/))) { vista = "lista"; grupoLista = m[1]; }
+  else if (h === "avance") vista = "avance";
+  else vista = "inicio";
+  for (const [id, v] of [["v-top", "inicio"], ["v-inicio", "inicio"], ["v-lista", "lista"], ["tema", "tema"], ["v-avance", "avance"]]) document.getElementById(id).hidden = vista !== v;
+  document.getElementById("barra-nav").hidden = vista === "inicio";
+  const t = TEMAS.find(x => x.id === actual);
+  document.getElementById("nav-titulo").textContent = vista === "lista" ? GRUPOS[grupoLista] : vista === "avance" ? "Guardar mi avance" : vista === "tema" ? nombreTema(t) : "";
+  render();
+  window.scrollTo(0, 0);
+}
+document.getElementById("volver").onclick = () => {
+  if (vista === "tema") location.hash = "#lista-" + TEMAS.find(x => x.id === actual).grupo;
+  else location.hash = "#inicio";
+};
+document.getElementById("menu-btn").onclick = () => { location.hash = "#inicio"; };
+window.addEventListener("hashchange", mostrar);
 
 // ---------------- Cálculo del avance ----------------
 function totalEj(c) { return c.grupos.reduce((n, g) => n + g.items.length, 0); }
@@ -1317,25 +1391,9 @@ function render() {
   document.getElementById("barra").style.width = (hechos / temasReales.length * 100) + "%";
   const empezados = temasReales.filter(t => !temaHecho(t.id) && temaEmpezado(t.id)).length;
   document.getElementById("empezados").textContent = empezados ? empezados + (empezados === 1 ? " tema empezado" : " temas empezados") : "";
-  const lista = document.getElementById("lista-temas");
-  lista.innerHTML = "";
-  TEMAS.forEach((t, i) => {
-    if (i === 0 || TEMAS[i - 1].grupo !== t.grupo) {
-      const hdr = document.createElement("div");
-      hdr.className = "grupo-temas";
-      hdr.textContent = t.grupo === "base" ? "Tema 0 · Bases (Análisis I y secundario)" : t.grupo === "simulacro" ? "Simulacros" : "Temas del examen";
-      lista.appendChild(hdr);
-    }
-    const b = document.createElement("button");
-    b.className = "tema-btn" + (temaHecho(t.id) ? " done" : temaEmpezado(t.id) ? " started" : "") + (CONTENIDO[t.id] ? "" : " lock");
-    b.setAttribute("aria-current", t.id === actual ? "true" : "false");
-    const [, m, d] = t.fecha.split("-").map(Number);
-    b.innerHTML = `<span class="n">${temaHecho(t.id) ? "✓" : t.num}</span><span class="t">${t.titulo}<small>${t.grupo === "base" ? "hacelo antes del " : t.grupo === "simulacro" ? "fecha sugerida " : ""}${d}/${m} · ${t.ej}${CONTENIDO[t.id] ? "" : " · se prepara ese día"}</small></span>`;
-    b.onclick = () => { actual = t.id; try { localStorage.setItem(LS_KEY + "-tema", actual); } catch (e) {} render(); document.getElementById("tema").scrollIntoView({ block: "start", behavior: "smooth" }); };
-    lista.appendChild(b);
-  });
-  renderHoy();
-  renderTema();
+  renderInicio();
+  renderLista();
+  if (vista === "tema") renderTema();
 }
 
 function videoCard(v) {
@@ -1365,10 +1423,11 @@ function renderTema() {
   const etiquetas = [["sintesis", "Síntesis"], ["concepto", "Video de concepto"], ["ejemplos", "Video de ejercicios"], ["ejercicios", "Ejercicios"], ["autoeval", "Autoevaluación"]];
   let h = `<div class="tema-head"><div class="metas"><span class="chip">Tema ${idx}</span><span class="chip gray">${t.ej} del examen</span><span class="chip gray">${fechaLarga(t.fecha)}</span></div>
     <h2>${t.titulo}</h2>
+    <details class="objetivos" ${pasoActual === 0 && !Object.values(p).some(Boolean) ? "open" : ""}><summary class="eyebrow">Qué vas a aprender en este tema</summary>
     ${c.usaEn ? `<p class="usa"><b>Lo vas a usar en:</b> ${c.usaEn}</p>` : ""}
     ${c.antes ? `<p class="usa"><b>Antes necesitás:</b> ${c.antes}</p>` : ""}
-    <div class="flujo">${etiquetas.map(([k, l], i) => `<span class="${p[k] ? "ok" : ""}">${p[k] ? "✓" : i + 1 + "."} ${l}</span>`).join("<span>→</span>")}</div>
-    <div><span class="eyebrow">Al terminar vas a poder</span><ul style="margin:6px 0 0;padding-left:20px">${c.objetivos.map(o => `<li>${o}</li>`).join("")}</ul></div></div>`;
+    <ul style="margin:6px 0 0;padding-left:20px">${c.objetivos.map(o => `<li>${o}</li>`).join("")}</ul></details>
+    <div class="pasos-menu">${etiquetas.map(([k, l], i) => `<button class="paso-btn ${i === pasoActual ? "on" : ""} ${p[k] ? "ok" : ""}" data-ir-paso="${i}"><span class="pn">${p[k] ? "✓" : i + 1}</span><span>${l}</span></button>`).join("")}</div></div>`;
   if (Object.values(p).every(Boolean)) h += `<div class="fin"><b>¡Tema terminado!</b><span>Mañana vuelve a aparecer en tu repaso. Contale a Claude cómo te fue, así lo anota en tu seguimiento.</span></div>`;
 
   // Paso 1: síntesis
@@ -1416,6 +1475,14 @@ function renderTema() {
   h += `</section>`;
 
   main.innerHTML = h;
+  main.querySelectorAll(":scope > section.paso").forEach((sec, i) => { sec.hidden = i !== pasoActual; });
+  const nav = document.createElement("div");
+  nav.className = "pasos-nav";
+  nav.innerHTML = (pasoActual > 0 ? `<button data-ir-paso="${pasoActual - 1}">← ${etiquetas[pasoActual - 1][1]}</button>` : "")
+    + (pasoActual < etiquetas.length - 1 ? `<button class="prim" data-ir-paso="${pasoActual + 1}">Siguiente: ${etiquetas[pasoActual + 1][1]} →</button>` : `<button class="prim" data-menu>Volver al menú</button>`);
+  main.appendChild(nav);
+  main.querySelectorAll("[data-ir-paso]").forEach(b => b.onclick = () => { pasoActual = +b.dataset.irPaso; renderTema(); window.scrollTo(0, 0); });
+  const vm = main.querySelector("[data-menu]"); if (vm) vm.onclick = () => { location.hash = "#inicio"; };
   conectar(c, s);
   if (c.figura) iniciarFigura();
   if (c.fracciones) iniciarFracciones();
@@ -1827,7 +1894,7 @@ function iniciarLector() {
   dib();
 }
 
-render();
+mostrar();
 ghConectar();
 </script>
 
