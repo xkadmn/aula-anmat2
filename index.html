@@ -1,0 +1,1832 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2347c8">
+<title>Aula Análisis II</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: cuaderno de estudio. Barra de temas a la izquierda (arriba en el celular), el tema del día en 5 pasos en orden. */
+:root {
+  --bg: #f3f6fb;
+  --surface: #ffffff;
+  --ink: #17203a;
+  --muted: #56627f;
+  --line: #d8dfeb;
+  --grid: #e6ebf4;
+  --accent: #2347c8;
+  --accent-soft: #e5ebff;
+  --cos: #c85a12;
+  --ok: #1d7a4b;
+  --ok-soft: #e1f3e8;
+  --err: #be3328;
+  --err-soft: #fbe6e3;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1321; --surface: #161d2f; --ink: #e6ebf7; --muted: #9ca8c4; --line: #29334d; --grid: #1e2740;
+    --accent: #87a0ff; --accent-soft: #1d2850; --cos: #ffa35a; --ok: #62d49d; --ok-soft: #12321f; --err: #ff8a7d; --err-soft: #3b1a18;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1321; --surface: #161d2f; --ink: #e6ebf7; --muted: #9ca8c4; --line: #29334d; --grid: #1e2740;
+  --accent: #87a0ff; --accent-soft: #1d2850; --cos: #ffa35a; --ok: #62d49d; --ok-soft: #12321f; --err: #ff8a7d; --err-soft: #3b1a18;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.4rem, 3vw, 1.85rem); font-weight: 800; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 24px; }
+
+/* Encabezado */
+.top { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; }
+.top-title { display: grid; gap: 6px; }
+.top-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; display: grid; gap: 2px; min-width: 150px; }
+.stat b { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; }
+.bar { height: 8px; background: var(--grid); border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .3s; }
+.sync { font-size: 0.85rem; color: var(--muted); }
+
+/* Distribución */
+.layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Lista de temas */
+.temas { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; display: grid; gap: 2px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 40px); overflow-y: auto; }
+@media (max-width: 860px) { .temas { position: static; max-height: 260px; } }
+.temas h3 { padding: 6px 8px 8px; font-size: 1rem; }
+.tema-btn { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: start; text-align: left; background: none; border: 0; border-radius: 8px; padding: 8px; cursor: pointer; }
+.tema-btn:hover { background: var(--grid); }
+.tema-btn[aria-current="true"] { background: var(--accent-soft); }
+.tema-btn .n { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: var(--muted); }
+.tema-btn.done .n { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.tema-btn.started .n { border-color: var(--accent); color: var(--accent); }
+.tema-btn .t { font-size: 0.92rem; line-height: 1.3; display: grid; gap: 1px; }
+.tema-btn .t small { color: var(--muted); font-size: 0.78rem; }
+.tema-btn.lock .t { color: var(--muted); }
+
+/* Tema */
+.tema { display: grid; gap: 22px; min-width: 0; }
+.tema-head { display: grid; gap: 10px; }
+.metas { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.chip.gray { background: var(--grid); color: var(--muted); }
+.flujo { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.88rem; color: var(--muted); }
+.flujo span { display: inline-flex; gap: 6px; align-items: center; }
+.flujo span.ok { color: var(--ok); font-weight: 700; }
+
+.paso { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.paso-head { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.paso-head .izq { display: flex; gap: 12px; align-items: center; }
+.num { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--surface); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; flex: none; }
+.paso.hecho .num { background: var(--ok); }
+.check { display: inline-flex; gap: 8px; align-items: center; font-weight: 700; font-size: 0.92rem; cursor: pointer; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); user-select: none; }
+.check input { width: 18px; height: 18px; accent-color: var(--ok); }
+.check.on { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.auto { font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+.auto.on { color: var(--ok); }
+
+.idea { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+.sint { display: grid; gap: 18px; max-width: 72ch; }
+.sint section { display: grid; gap: 6px; }
+.sint h3 { font-size: 1.05rem; }
+.formula { font-family: var(--font-mono); background: var(--grid); padding: 8px 12px; border-radius: 8px; display: inline-block; font-size: 0.95rem; }
+.ojo { border: 1px dashed var(--err); color: var(--ink); padding: 10px 14px; border-radius: 8px; background: var(--err-soft); }
+.ojo b { color: var(--err); }
+
+.tabla-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 0.95rem; min-width: 460px; }
+th, td { border-bottom: 1px solid var(--line); padding: 7px 12px; text-align: left; }
+th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+td.m { font-family: var(--font-mono); }
+.c-sen { color: var(--accent); font-weight: 700; }
+.c-cos { color: var(--cos); font-weight: 700; }
+
+/* Figura interactiva */
+.fig { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 12px; background: var(--bg); }
+.fig svg { width: 100%; height: auto; display: block; }
+.fig-ctrl { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.fig-ctrl input[type=range] { flex: 1 1 220px; accent-color: var(--accent); }
+.lectura { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--font-mono); font-size: 0.92rem; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 0.92rem; }
+.btn:hover { border-color: var(--accent); }
+.btn.pri { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn.lnk { border: 0; background: none; color: var(--muted); text-decoration: underline; padding: 7px 4px; }
+
+/* Videos */
+.videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.video { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 8px; text-decoration: none; color: var(--ink); align-content: start; }
+.video:hover { border-color: var(--accent); }
+.video .canal { color: var(--muted); font-size: 0.86rem; }
+.video .play { color: var(--accent); font-weight: 700; font-size: 0.92rem; }
+.video .datos { font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); }
+.tip { font-size: 0.92rem; color: var(--muted); }
+
+/* Ejercicios */
+.grupo { display: grid; gap: 10px; }
+.grupo > h3 { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.grupo > h3 small { font-family: var(--font-body); font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+.ej { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 10px; }
+.ej.ok { border-color: var(--ok); background: var(--ok-soft); }
+.ej-q { display: flex; gap: 10px; align-items: baseline; }
+.ej-q .k { font-family: var(--font-mono); color: var(--muted); font-size: 0.85rem; flex: none; }
+.ej-r { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ej-r input[type=text] { font-family: var(--font-mono); border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 10px; width: 170px; max-width: 100%; }
+.opciones { display: grid; gap: 6px; }
+.opcion { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; background: var(--surface); }
+.opcion input { accent-color: var(--accent); }
+.fb { font-size: 0.93rem; padding: 8px 12px; border-radius: 8px; }
+.fb.bien { background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+.fb.mal { background: var(--err-soft); color: var(--err); }
+.sol { font-size: 0.93rem; border-left: 3px solid var(--muted); padding: 4px 12px; display: grid; gap: 4px; }
+.mini svg { max-width: 360px; width: 100%; height: auto; }
+.ayuda-teclado { font-size: 0.85rem; color: var(--muted); }
+
+/* Autoevaluación */
+.lista { display: grid; gap: 8px; }
+.lista label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.lista input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--ok); flex: none; }
+.explica { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.explica textarea { width: 100%; min-height: 70px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--surface); resize: vertical; }
+.modelo { background: var(--grid); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
+
+.escalera { display: inline-grid; grid-template-columns: auto auto; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1rem; }
+.escalera span { padding: 1px 12px; }
+.escalera span:nth-child(odd) { text-align: right; border-right: 2px solid var(--ink); }
+.fr-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.fr-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.fr-col input[type=text] { font-family: var(--font-mono); border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 10px; width: 110px; }
+s { color: var(--err); text-decoration-thickness: 2px; }
+.datos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.dato { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; background: var(--surface); }
+.dato h4 { margin: 0; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; }
+.dato .lbl { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; margin-top: 4px; }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.lector-txt { font-size: 0.97rem; min-height: 3em; }
+.grupo-temas { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; padding: 12px 8px 4px; }
+.usa { font-size: 0.95rem; background: var(--grid); border-radius: 8px; padding: 8px 12px; }
+.tr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 18px; }
+.tr-sl { display: grid; gap: 2px; }
+.tr-sl input { width: 100%; accent-color: var(--accent); }
+.tr-f { font-size: 1.05rem; font-weight: 700; }
+.reloj { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center; }
+.reloj .mono { font-size: 2.6rem; font-weight: 700; color: var(--accent); }
+.enunciados { margin: 0; padding-left: 20px; display: grid; gap: 12px; }
+.enunciados li { display: grid; gap: 4px; }
+.resol { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+.resol summary { cursor: pointer; }
+.resol[open] summary { margin-bottom: 10px; }
+.bloqueado { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 28px; display: grid; gap: 10px; }
+.fin { background: var(--ok-soft); border: 1px solid var(--ok); color: var(--ink); border-radius: var(--radius); padding: 16px 20px; display: grid; gap: 4px; }
+.fin b { color: var(--ok); }
+/* Panel "Hoy" y guardado en GitHub */
+.hoy { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 12px; }
+.hoy h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); }
+.hoy .bloque { display: grid; gap: 6px; }
+.hoy .meta { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ir { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 99px; padding: 7px 14px; font-weight: 700; cursor: pointer; min-height: 40px; text-align: left; }
+.ir.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.ir.gris { border-color: var(--line); background: transparent; color: var(--ink); font-weight: 400; }
+.gh { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; }
+.gh summary { cursor: pointer; font-weight: 700; }
+.gh summary small { font-weight: 400; color: var(--muted); }
+.gh .gh-cuerpo { display: grid; gap: 10px; margin-top: 12px; }
+.gh ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.gh input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-family: var(--font-mono); font-size: 0.9rem; }
+.gh .fila { display: flex; flex-wrap: wrap; gap: 8px; }
+.gh button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 700; min-height: 40px; }
+.gh button.prim { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gh button.prim { color: #0e1321; } }
+:root[data-theme="dark"] .gh button.prim { color: #0e1321; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top-title">
+      <span class="eyebrow">Análisis Matemático II · Final del miércoles 2 de diciembre</span>
+      <h1>Aula de estudio</h1>
+      <span class="sync" id="sync">Tu avance se guarda en este navegador.</span>
+    </div>
+    <div class="top-stats">
+      <div class="stat"><span class="eyebrow">Faltan</span><b id="dias">—</b><span class="sync">días para el examen</span></div>
+      <div class="stat"><span class="eyebrow">Temas terminados</span><b id="hechos">0 de 19</b><div class="bar"><i id="barra" style="width:0%"></i></div></div>
+    </div>
+  </header>
+
+  <section class="hoy" id="hoy" aria-label="Lo que toca hoy"></section>
+
+  <details class="gh" id="gh-panel">
+    <summary>Guardar mi avance en GitHub · <small id="gh-estado">sin conectar (el avance queda solo en este navegador)</small></summary>
+    <div class="gh-cuerpo">
+      <p>Conectado, tu avance se guarda en tu repositorio y se ve igual en el celular y en la computadora. Claude también lo puede leer para actualizar el plan.</p>
+      <ol>
+        <li>En GitHub: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">crear un token nuevo</a> (Fine-grained token).</li>
+        <li>En <b>Repository access</b> elegí <b>Only select repositories</b> y marcá <b>xkadmn/anmat</b>.</li>
+        <li>En <b>Permissions → Repository permissions → Contents</b> elegí <b>Read and write</b>. Nada más.</li>
+        <li>Generalo, copialo y pegalo acá abajo. Se hace una sola vez en cada dispositivo.</li>
+      </ol>
+      <input type="password" id="gh-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="Token de GitHub">
+      <div class="fila">
+        <button class="prim" id="gh-conectar">Conectar</button>
+        <button id="gh-ahora">Guardar ahora</button>
+        <button id="gh-quitar">Desconectar este dispositivo</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="layout">
+    <nav class="temas" aria-label="Temas del plan">
+      <h3>Plan de estudio</h3>
+      <div id="lista-temas" style="display:grid;gap:2px"></div>
+    </nav>
+    <main id="tema" class="tema"></main>
+  </div>
+</div>
+
+<script>
+// ---------------- Datos del plan ----------------
+const EXAMEN = new Date(2026, 11, 2);
+const TEMAS = [
+  { id: "t00", num: "0.1", grupo: "base", fecha: "2026-10-28", ej: "Base", titulo: "Factorizar y simplificar fracciones" },
+  { id: "b2", num: "0.2", grupo: "base", fecha: "2026-10-29", ej: "Base", titulo: "Signos, orden de las operaciones y fracciones" },
+  { id: "b3", num: "0.3", grupo: "base", fecha: "2026-10-30", ej: "Base", titulo: "Potencias y raíces" },
+  { id: "b4", num: "0.4", grupo: "base", fecha: "2026-10-30", ej: "Base", titulo: "Distributiva, factor común y productos notables" },
+  { id: "b5", num: "0.5", grupo: "base", fecha: "2026-10-31", ej: "Base", titulo: "Límites" },
+  { id: "b6", num: "0.6", grupo: "base", fecha: "2026-11-02", ej: "Base", titulo: "Funciones, rectas y parábolas" },
+  { id: "b8", num: "0.7", grupo: "base", fecha: "2026-11-04", ej: "Base", titulo: "Ecuaciones: despejar, cuadráticas y Ruffini" },
+  { id: "b7", num: "0.8", grupo: "base", fecha: "2026-11-05", ej: "Base", titulo: "Número e y logaritmo natural" },
+  { id: "t01", num: "1", grupo: "examen", fecha: "2026-10-28", ej: "Ej. 1", titulo: "Radianes y gráficas de sen y cos" },
+  { id: "t02", num: "2", grupo: "examen", fecha: "2026-10-29", ej: "Ej. 1", titulo: "Amplitud, período y desfase" },
+  { id: "t03", num: "3", grupo: "examen", fecha: "2026-10-31", ej: "Ej. 2", titulo: "Derivada por definición y tabla de derivadas" },
+  { id: "t04", num: "4", grupo: "examen", fecha: "2026-11-01", ej: "Ej. 2", titulo: "Suma, producto y cociente" },
+  { id: "t05", num: "5", grupo: "examen", fecha: "2026-11-02", ej: "Ej. 2", titulo: "Regla de la cadena" },
+  { id: "t06", num: "6", grupo: "examen", fecha: "2026-11-03", ej: "Ej. 2", titulo: "Recta tangente y recta normal" },
+  { id: "t07", num: "7", grupo: "examen", fecha: "2026-11-05", ej: "Ej. 2", titulo: "Problemas inversos de recta tangente" },
+  { id: "t08", num: "8", grupo: "examen", fecha: "2026-11-06", ej: "Ej. 3", titulo: "Integrales inmediatas" },
+  { id: "t09", num: "9", grupo: "examen", fecha: "2026-11-07", ej: "Ej. 3", titulo: "Integración por sustitución" },
+  { id: "t10", num: "10", grupo: "examen", fecha: "2026-11-08", ej: "Ej. 3", titulo: "Sustitución que da logaritmo" },
+  { id: "t11", num: "11", grupo: "examen", fecha: "2026-11-10", ej: "Ej. 5", titulo: "Integración por partes" },
+  { id: "t12", num: "12", grupo: "examen", fecha: "2026-11-11", ej: "Ej. 3 y 5", titulo: "Elegir el método de integración" },
+  { id: "t13", num: "13", grupo: "examen", fecha: "2026-11-12", ej: "Ej. 4", titulo: "Integral definida y regla de Barrow" },
+  { id: "t14", num: "14", grupo: "examen", fecha: "2026-11-14", ej: "Ej. 5", titulo: "Área bajo la curva" },
+  { id: "t15", num: "15", grupo: "examen", fecha: "2026-11-17", ej: "Ej. 6", titulo: "Área entre dos curvas" },
+  { id: "t16", num: "16", grupo: "examen", fecha: "2026-11-18", ej: "Ej. 6", titulo: "Intersecciones con cúbicas" },
+  { id: "t17", num: "17", grupo: "examen", fecha: "2026-11-25", ej: "Extra", titulo: "Puntos críticos, crecimiento y extremos" },
+  { id: "t18", num: "18", grupo: "examen", fecha: "2026-11-27", ej: "Extra", titulo: "Concavidad e inflexión", alias: "concavidad" },
+  { id: "s3", num: "S3", grupo: "simulacro", fecha: "2026-11-24", ej: "Todos", titulo: "Simulacro 3: tu último final" },
+];
+const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+function fechaLarga(iso) { const [y, m, d] = iso.split("-").map(Number); const f = new Date(y, m - 1, d); return `${DIAS[f.getDay()]} ${d} de ${MESES[m - 1]}`; }
+
+// ---------------- Contenido de cada tema ----------------
+const CONTENIDO = {
+  t00: {
+    fracciones: true,
+    usaEn: "Tema 1 (pasar grados a radianes) y en toda cuenta con fracciones: Barrow, áreas y derivadas.",
+    objetivos: [
+      "Reconocer números primos y saber por cuál primo se puede dividir un número.",
+      "Factorizar un número con el método de la escalera (las dos columnas).",
+      "Simplificar una fracción tachando los factores que se repiten arriba y abajo.",
+      "Explicar por qué una fracción simplificada vale lo mismo que la original.",
+    ],
+    idea: "Factorizar es escribir un número como multiplicación de números primos. Sirve para simplificar fracciones: escribís arriba y abajo como multiplicación de primos y tachás los que se repiten, porque tachar un par es dividir arriba y abajo por el mismo número.",
+    sintesis: `
+      <section><h3>¿Qué es simplificar una fracción?</h3>
+        <p>Es escribirla con números más chicos <b>sin cambiar lo que vale</b>. Se hace dividiendo el numerador (el número de arriba) y el denominador (el de abajo) <b>por el mismo número</b>. Por ejemplo, 60/180 vale lo mismo que 1/3: si cortás una pizza en 180 porciones y comés 60, comiste un tercio de la pizza.</p>
+      </section>
+      <section><h3>Forma 1: dividir de a poco</h3>
+        <p>Buscás un número que divida a los dos, dividís, y repetís hasta que no quede ninguno:</p>
+        <p><span class="formula">60/180 → dividís los dos por 10 → 6/18 → dividís los dos por 6 → 1/3</span></p>
+      </section>
+      <section><h3>Forma 2: factorizar (la que usa el video)</h3>
+        <p><b>Factorizar</b> un número es escribirlo como una multiplicación de <b>números primos</b>. Un número primo es el que solo se puede dividir por 1 y por sí mismo: 2, 3, 5, 7, 11, 13…</p>
+        <p>Para factorizar, dividís por el primo más chico que se pueda, una y otra vez, hasta llegar a 1. Se anota en dos columnas: a la izquierda el número que va quedando y a la derecha el primo por el que dividiste. Mirá el ejemplo de 180 y de 60 en el recuadro de abajo.</p>
+        <p>Queda 180 = 2·2·3·3·5 y 60 = 2·2·3·5. Escribís la fracción con esos factores y <b>tachás los que se repiten arriba y abajo</b>. Cada par tachado es dividir arriba y abajo por ese número:</p>
+        <p><span class="formula">60/180 = (<s>2</s>·<s>2</s>·<s>3</s>·<s>5</s>) / (<s>2</s>·<s>2</s>·<s>3</s>·3·<s>5</s>) = 1/3</span></p>
+        <p>Arriba no quedó nada; eso es un 1 (porque todo número dividido por sí mismo da 1). Abajo quedó el 3.</p>
+      </section>
+      <section><h3>¿Cómo sé por qué primo dividir?</h3>
+        <p>· Por <b>2</b>, si el número es par (termina en 0, 2, 4, 6 u 8).<br>· Por <b>3</b>, si la suma de sus cifras da 3, 6, 9, 12… Por ejemplo, 180: 1 + 8 + 0 = 9, así que se divide por 3.<br>· Por <b>5</b>, si termina en 0 o en 5.<br>· Si no sirve ninguno, probá con 7, 11, 13…</p>
+      </section>
+      <section><h3>¿Para qué lo voy a necesitar?</h3>
+        <p>En el tema 1, cuando pases grados a radianes, siempre va a aparecer algo como 60π/180. Simplificar la fracción es lo que te deja el resultado limpio: π/3.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> tachar un número solo arriba (o solo abajo); dejar un factor que no es primo, como 9 o 15, sin seguir dividiéndolo; olvidar que si arriba se tachan todos los factores queda un 1, no un 0.",
+    videosConcepto: [
+      { titulo: "Números primos y compuestos", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=_9SYCAbh5oA", datos: "10 min · 2023 · 702 mil vistas", nota: "Subtema: qué es un número primo." },
+      { titulo: "Criterios de divisibilidad de 2, 3 y 5", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=4tK2XIEx-fg", datos: "19 min · 2023 · 272 mil vistas", nota: "Subtema: por cuál primo dividir." },
+      { titulo: "Factores primos de un número", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=nhK3B4Sq234", datos: "17 min · 2023 · 163 mil vistas", nota: "Subtema: factorizar con la escalera." },
+      { titulo: "Simplificación de fracciones: reducir a su mínima expresión", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=qt-C74eBSCw", datos: "19 min · 2024 · 242 mil vistas", nota: "Subtema: simplificar fracciones." },
+    ],
+    videosEjercicios: [
+      { titulo: "Factores primos de un número \"grande\"", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=G_F7nxw1OGA", datos: "28 min · 2023 · 233 mil vistas", nota: "Practicar factorizar con números más grandes, mismo canal y método que el video de concepto." },
+      { titulo: "Cómo simplificar fracciones descomponiendo en factores", canal: "Matemáticas con Juan", url: "https://www.youtube.com/watch?v=OXBmScuNTnI", datos: "8 min · 2019 · 83 mil vistas", nota: "Factorizar y tachar, con varios ejemplos." },
+      { titulo: "Simplificar fracciones con números grandes", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=kAOhM4MjV9k", datos: "11 min · 2017 · 1,2 millones de vistas", nota: "Cuando los números son grandes, como 315/180." },
+    ],
+    grupos: [
+      { titulo: "A. Primos y reglas de divisibilidad", nota: "Usá las reglas del 2, el 3 y el 5", items: [
+        { id: "p1", q: "¿Cuál de estos números es <b>primo</b>?", tipo: "mc", ops: ["7", "9", "15", "21"], ok: 0, pista: "Un primo solo se divide por 1 y por sí mismo. Probá dividir cada uno por 3.", sol: ["9 = 3·3, 15 = 3·5 y 21 = 3·7: no son primos", "7 solo se divide por 1 y por 7: <b>es primo</b>"] },
+        { id: "p2", q: "¿Por cuáles primos se puede dividir <b>135</b>?", tipo: "mc", ops: ["Por 3 y por 5", "Solo por 2", "Solo por 5", "Por ninguno"], ok: 0, pista: "¿Es par? ¿Cuánto suman sus cifras? ¿En qué termina?", sol: ["Es impar: no se divide por 2", "1 + 3 + 5 = 9: se divide por 3", "Termina en 5: se divide por 5", "Respuesta: <b>por 3 y por 5</b>"] },
+        { id: "p3", q: "¿<b>234</b> se puede dividir por 3?", tipo: "mc", ops: ["Sí, porque 2 + 3 + 4 = 9", "No, porque termina en 4", "Sí, porque es par", "No, porque no termina en 0 ni en 5"], ok: 0, pista: "La regla del 3 mira la suma de las cifras.", sol: ["2 + 3 + 4 = 9, y 9 se divide por 3", "Entonces <b>sí</b>: 234 ÷ 3 = 78"] },
+        { id: "p4", q: "Al simplificar, tachar un 3 arriba y un 3 abajo es lo mismo que…", tipo: "mc", ops: ["Dividir arriba y abajo por 3", "Restarle 3 a los dos", "Multiplicar los dos por 3", "Sacar el 3 solo de arriba"], ok: 0, pista: "¿Qué operación hace que la fracción siga valiendo lo mismo?", sol: ["Dividir numerador y denominador por el mismo número no cambia el valor", "Tachar el par es <b>dividir arriba y abajo por 3</b>"] },
+      ] },
+      { titulo: "B. Factorizar", nota: "Escribí la multiplicación como 2·2·3 o 2*2*3", items: [
+        { id: "g1", q: "Factorizá <b>180</b>: escribilo como multiplicación de primos.", tipo: "fact", n: 180, pista: "180 es par: dividí por 2 todas las veces que puedas, después por 3 y después por 5.", sol: ["180 ÷ 2 = 90; 90 ÷ 2 = 45; 45 ÷ 3 = 15; 15 ÷ 3 = 5; 5 ÷ 5 = 1", "180 = <b>2·2·3·3·5</b>"] },
+        { id: "g2", q: "Factorizá <b>120</b>.", tipo: "fact", n: 120, pista: "Dividí por 2 hasta que no se pueda más.", sol: ["120 ÷ 2 = 60; 60 ÷ 2 = 30; 30 ÷ 2 = 15; 15 ÷ 3 = 5; 5 ÷ 5 = 1", "120 = <b>2·2·2·3·5</b>"] },
+        { id: "g3", q: "Factorizá <b>315</b>.", tipo: "fact", n: 315, pista: "Es impar, así que no va el 2. Sus cifras suman 9: empezá por 3.", sol: ["315 ÷ 3 = 105; 105 ÷ 3 = 35; 35 ÷ 5 = 7; 7 ÷ 7 = 1", "315 = <b>3·3·5·7</b>"] },
+        { id: "g4", q: "Factorizá <b>84</b>.", tipo: "fact", n: 84, pista: "Es par: empezá por 2. Cuando ya no se pueda, probá con 3 y después con 7.", sol: ["84 ÷ 2 = 42; 42 ÷ 2 = 21; 21 ÷ 3 = 7; 7 ÷ 7 = 1", "84 = <b>2·2·3·7</b>"] },
+      ] },
+      { titulo: "C. Simplificar fracciones", nota: "Escribí la fracción como 1/3", items: [
+        { id: "f1", q: "Simplificá <b>60/180</b> hasta que no se pueda más.", tipo: "frac", v: [1, 3], pista: "Los dos terminan en 0: empezá dividiendo por 10.", sol: ["60 = 2·2·3·5 y 180 = 2·2·3·3·5", "Se tachan 2, 2, 3 y 5 (arriba y abajo)", "Queda <b>1/3</b>"] },
+        { id: "f2", q: "Simplificá <b>45/180</b>.", tipo: "frac", v: [1, 4], pista: "45 = 3·3·5. Factorizá 180 y tachá los que se repiten.", sol: ["45 = 3·3·5 y 180 = 2·2·3·3·5", "Se tachan 3, 3 y 5", "Queda 1/(2·2) = <b>1/4</b>"] },
+        { id: "f3", q: "Simplificá <b>150/180</b>.", tipo: "frac", v: [5, 6], pista: "Primero dividí los dos por 10 y seguí.", sol: ["150/180 → ÷10 → 15/18", "15/18 → ÷3 → <b>5/6</b>"] },
+        { id: "f4", q: "Simplificá <b>270/180</b>.", tipo: "frac", v: [3, 2], pista: "Que el de arriba sea más grande no cambia nada: dividí los dos por 10 y después por 9.", sol: ["270/180 → ÷10 → 27/18", "27/18 → ÷9 → <b>3/2</b>"] },
+        { id: "f5", q: "Simplificá <b>315/180</b>.", tipo: "frac", v: [7, 4], pista: "315 termina en 5: se divide por 5. Factorizá los dos.", sol: ["315 = 3·3·5·7 y 180 = 2·2·3·3·5", "Se tachan 3, 3 y 5", "Queda 7/(2·2) = <b>7/4</b>"] },
+        { id: "f6", q: "Simplificá <b>240/180</b>.", tipo: "frac", v: [4, 3], pista: "Dividí los dos por 10 y después por 6.", sol: ["240/180 → ÷10 → 24/18", "24/18 → ÷6 → <b>4/3</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo decir si un número es primo y por cuál primo se puede dividir.",
+      "Puedo factorizar un número con la escalera, sin mirar el ejemplo.",
+      "Puedo simplificar una fracción tachando los factores que se repiten.",
+      "Puedo explicar por qué la fracción simplificada vale lo mismo.",
+    ],
+    explicar: [
+      { id: "e01", q: "¿Qué es un número primo?", modelo: "Es un número mayor que 1 que solo se puede dividir (sin que sobre nada) por 1 y por sí mismo. Por ejemplo 2, 3, 5, 7, 11. El 9 no es primo porque se divide por 3." },
+      { id: "e02", q: "¿Qué significa factorizar un número y cómo se hace?", modelo: "Es escribirlo como una multiplicación de números primos. Se divide por el primo más chico posible una y otra vez hasta llegar a 1, anotando los primos usados. Por ejemplo, 180 = 2·2·3·3·5." },
+      { id: "e03", q: "¿Por qué al simplificar una fracción no cambia su valor?", modelo: "Porque dividís el numerador y el denominador por el mismo número. Es como cortar la pizza en menos porciones más grandes: la parte que comés es la misma. Tachar un factor arriba y el mismo abajo es justamente dividir los dos por ese número." },
+    ],
+  },
+  b2: {
+    usaEn: "Tema 2 (desfase), Barrow (tema 13), áreas (temas 14 a 16) y en casi todas las cuentas del examen.",
+    objetivos: [
+      "Aplicar la regla de los signos en sumas, restas, multiplicaciones y divisiones.",
+      "Sacar un paréntesis que tiene un signo menos adelante.",
+      "Resolver cuentas combinadas en el orden correcto.",
+      "Sumar, restar, multiplicar y dividir fracciones.",
+    ],
+    idea: "Casi todos los errores de Barrow y de áreas no son de integrales: son de signos y de fracciones. Esta base son las reglas de tránsito de las cuentas: qué signo queda, en qué orden se resuelve y cómo se opera con fracciones.",
+    sintesis: `
+      <section><h3>Regla de los signos al multiplicar y dividir</h3>
+        <p>Signos iguales dan <b>más</b>; signos distintos dan <b>menos</b>:</p>
+        <p><span class="formula">(+)·(+) = +  ·  (−)·(−) = +  ·  (+)·(−) = −  ·  (−)·(+) = −</span></p>
+        <p>Ejemplo: (−3)·(−4) = 12 y (−12) ÷ 3 = −4. Vale igual para la división.</p>
+      </section>
+      <section><h3>Sumar y restar con signos</h3>
+        <p>Si tienen el mismo signo, se suman y se deja ese signo: −3 − 5 = −8. Si tienen signos distintos, se restan y queda el signo del que tiene más valor: −7 + 2 = −5.</p>
+      </section>
+      <section><h3>El menos delante de un paréntesis</h3>
+        <p>Un signo menos delante de un paréntesis <b>cambia el signo de todo lo que está adentro</b>. Pensalo como multiplicar todo el paréntesis por −1, y el −1 multiplica a <b>cada</b> término (igual que la distributiva de la base 0.4):</p>
+        <p><span class="formula">−(x − 2) = −1·(x − 2) = −1·x + (−1)·(−2) = −x + 2</span></p>
+        <p>En resumen: el término que era positivo adentro pasa a negativo, y el que era negativo pasa a positivo. Otro ejemplo: −(x + 5) = −x − 5 (los dos eran positivos, los dos cambian a negativos). Y con números solos es igual: −(5 − 2) = −5 + 2 = −3.</p>
+        <p>En Barrow aparece siempre: F(b) − F(a), y ese menos afecta a <b>todo</b> F(a), no solo al primer término.</p>
+      </section>
+      <section><h3>Potencia de un negativo</h3>
+        <p>(−2)² = (−2)·(−2) = 4, pero −2² = −(2·2) = −4. El paréntesis decide si el menos está elevado o no.</p>
+      </section>
+      <section><h3>El orden de las operaciones</h3>
+        <p>1) Lo que está entre paréntesis. 2) Potencias y raíces. 3) Multiplicaciones y divisiones, de izquierda a derecha. 4) Sumas y restas, de izquierda a derecha.</p>
+        <p>Ejemplo: 2 + 3·4 = 2 + 12 = 14 (no 20). Primero se multiplica.</p>
+      </section>
+      <section><h3>Sumar y restar fracciones</h3>
+        <p>Si tienen el mismo denominador, sumás los numeradores: 1/5 + 2/5 = 3/5. Si tienen distinto denominador, primero las llevás a un denominador común. La forma más directa (en cruz):</p>
+        <p><span class="formula">a/b + c/d = (a·d + c·b) / (b·d)</span></p>
+        <p>Ejemplo: 1/2 + 1/3 = (1·3 + 1·2)/(2·3) = 5/6. Al final, simplificá si se puede.</p>
+        <p>Un número entero es una fracción con denominador 1: 2 = 2/1. Así, 2 − 1/3 = 6/3 − 1/3 = 5/3.</p>
+      </section>
+      <section><h3>Multiplicar y dividir fracciones</h3>
+        <p><span class="formula">a/b · c/d = (a·c)/(b·d)</span> &nbsp; arriba por arriba y abajo por abajo.</p>
+        <p><span class="formula">a/b ÷ c/d = a/b · d/c</span> &nbsp; dividir es multiplicar por la fracción dada vuelta.</p>
+        <p>Ejemplo: 2/3 · 9/4 = 18/12 = 3/2. Y 2/5 ÷ 4/15 = 2/5 · 15/4 = 30/20 = 3/2.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> cambiar el signo solo del primer término al sacar −( ); sumar fracciones sumando numeradores y denominadores (1/2 + 1/3 no es 2/5); resolver de izquierda a derecha sin respetar que la multiplicación va antes que la suma.",
+    videosConcepto: [
+      { titulo: "Cómo multiplicar números enteros (regla de los signos)", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=RxX-JhmxLG4", datos: "7 min · 2016 · 1,6 millones de vistas", nota: "Subtema: regla de los signos." },
+      { titulo: "Eliminar signos de agrupación", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=ASvBBYxDhE0", datos: "7 min · 2017 · 3 millones de vistas", nota: "Subtema: el menos delante del paréntesis." },
+      { titulo: "Potencia de números negativos", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=KLQglFEaxSw", datos: "13 min · 2020 · 1,2 millones de vistas", nota: "Subtema: (−3)² frente a −3², el del ejercicio S6. Explica cuándo el signo queda elevado y cuándo no." },
+      { titulo: "Jerarquía de las operaciones: introducción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=dibwDpi4YcM", datos: "25 min · 2023 · 317 mil vistas", nota: "Subtema: el orden de las operaciones." },
+      { titulo: "Suma y resta de fracciones heterogéneas", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=LntlkhzYu84", datos: "6 min · 2016 · 3,5 millones de vistas", nota: "Subtema: sumar y restar fracciones con distinto denominador." },
+      { titulo: "Multiplicación y división de fracciones", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=YGXURDXHfGI", datos: "6 min · 2016 · 5,8 millones de vistas", nota: "Subtema: multiplicar y dividir fracciones." },
+    ],
+    videosEjercicios: [
+      { titulo: "Reducción de términos semejantes, con signos de agrupación, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=V4-tugHPQRs", datos: "9 min · 2017 · 1,2 millones de vistas", nota: "Saca el paréntesis con signo negativo en expresiones con x e y, igual que en −(x − 2)." },
+      { titulo: "Operaciones combinadas con números enteros", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=UbqjPCAjUfg", datos: "9 min · 2017 · 6,8 millones de vistas", nota: "Signos, paréntesis y orden de las operaciones juntos." },
+      { titulo: "Operaciones combinadas con fracciones, ejemplo 6", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=OBMwV709QZ8", datos: "13 min · 2020 · 2,1 millones de vistas", nota: "Fracciones con suma, multiplicación, división y paréntesis." },
+    ],
+    grupos: [
+      { titulo: "A. Signos y orden de las operaciones", nota: "Respondé con un número", items: [
+        { id: "s1", q: "Calculá <b>(−3)·(−4)</b>.", tipo: "num", v: 12, pista: "Signos iguales dan más.", sol: ["Menos por menos da más", "3·4 = 12 → <b>12</b>"] },
+        { id: "s2", q: "Calculá <b>−7 + 2</b>.", tipo: "num", v: -5, pista: "Signos distintos: se restan y queda el signo del de mayor valor.", sol: ["7 − 2 = 5", "Gana el 7, que es negativo → <b>−5</b>"] },
+        { id: "s3", q: "Calculá <b>2 + 3·4</b>.", tipo: "num", v: 14, pista: "La multiplicación va antes que la suma.", sol: ["3·4 = 12", "2 + 12 = <b>14</b>"] },
+        { id: "s4", q: "Calculá <b>−2 + 5·(9 − 10)</b>.", tipo: "num", v: -7, pista: "Primero el paréntesis, después la multiplicación, al final la suma.", sol: ["9 − 10 = −1", "5·(−1) = −5", "−2 + (−5) = <b>−7</b>"] },
+        { id: "s4b", q: "Sacá el paréntesis: <b>−(5 − 2)</b>. ¿Cuánto da?", tipo: "num", v: -3, pista: "Es multiplicar todo por −1: −1·5 y −1·(−2).", sol: ["−(5 − 2) = −1·5 + (−1)·(−2) = −5 + 2", "= <b>−3</b> (lo mismo que calcular 5 − 2 = 3 y después ponerle el signo menos)"] },
+        { id: "s5", q: "¿Cuánto es <b>−(x − 2)</b>?", tipo: "mc", ops: ["−x + 2", "−x − 2", "x − 2", "x + 2"], ok: 0, pista: "Es lo mismo que el ejercicio anterior, pero con una x en vez de un 5: el menos cambia el signo de los dos términos de adentro.", sol: ["−(x − 2) = −1·x + (−1)·(−2)", "−(x) = −x", "−(−2) = +2", "Resultado: <b>−x + 2</b>"] },
+        { id: "s6", q: "Calculá <b>−3²</b> (sin paréntesis).", tipo: "num", v: -9, pista: "Sin paréntesis, el exponente afecta solo al 3.", sol: ["−3² = −(3·3)", "= <b>−9</b> (en cambio (−3)² = 9)"] },
+      ] },
+      { titulo: "B. Fracciones", nota: "Escribí la fracción simplificada, como 5/6 o −2/3", items: [
+        { id: "q1", q: "Calculá <b>1/2 + 1/3</b>.", tipo: "frac", v: [5, 6], pista: "En cruz: (1·3 + 1·2)/(2·3).", sol: ["(1·3 + 1·2)/(2·3) = (3 + 2)/6", "= <b>5/6</b>"] },
+        { id: "q2", q: "Calculá <b>3/4 − 1/6</b>.", tipo: "frac", v: [7, 12], pista: "En cruz: (3·6 − 1·4)/(4·6), y después simplificá.", sol: ["(18 − 4)/24 = 14/24", "Simplificando por 2: <b>7/12</b>"] },
+        { id: "q3", q: "Calculá <b>2/3 · 9/4</b>.", tipo: "frac", v: [3, 2], pista: "Arriba por arriba, abajo por abajo, y simplificá.", sol: ["(2·9)/(3·4) = 18/12", "Simplificando por 6: <b>3/2</b>"] },
+        { id: "q4", q: "Calculá <b>2/5 ÷ 4/15</b>.", tipo: "frac", v: [3, 2], pista: "Dividir es multiplicar por la segunda dada vuelta: 2/5 · 15/4.", sol: ["2/5 · 15/4 = 30/20", "Simplificando por 10: <b>3/2</b>"] },
+        { id: "q5", q: "Calculá <b>2 − 1/3</b>.", tipo: "frac", v: [5, 3], pista: "Escribí el 2 como 6/3.", sol: ["2 = 6/3", "6/3 − 1/3 = <b>5/3</b>"] },
+        { id: "q6", q: "Calculá <b>−8/3 + 2</b>. (Así terminan muchas cuentas de Barrow.)", tipo: "frac", v: [-2, 3], pista: "2 = 6/3. Después sumá −8 + 6.", sol: ["2 = 6/3", "−8/3 + 6/3 = <b>−2/3</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Sé qué signo queda al multiplicar, dividir, sumar y restar.",
+      "Puedo sacar un paréntesis con un menos adelante sin equivocarme.",
+      "Sé en qué orden se resuelve una cuenta combinada.",
+      "Puedo operar con fracciones (sumar, restar, multiplicar y dividir).",
+    ],
+    explicar: [
+      { id: "e21", q: "¿Qué pasa cuando hay un signo menos delante de un paréntesis?", modelo: "Cambia el signo de todos los términos de adentro, porque es como multiplicar el paréntesis por −1. Por ejemplo, −(x − 2) = −x + 2." },
+      { id: "e22", q: "¿Cómo sumás dos fracciones con distinto denominador?", modelo: "Las llevo a un denominador común. Lo más directo es en cruz: a/b + c/d = (a·d + c·b)/(b·d). Después simplifico si se puede." },
+      { id: "e23", q: "¿Cómo dividís dos fracciones?", modelo: "Multiplico la primera por la segunda dada vuelta (su inversa): a/b ÷ c/d = a/b · d/c." },
+    ],
+  },
+  b3: {
+    usaEn: "Derivadas (regla de la potencia, temas 3 a 5), integrales inmediatas (tema 8) y el Ej. 3 del final (e⁻ˣ·e²⁺²ˣ).",
+    objetivos: [
+      "Usar las propiedades de las potencias de igual base.",
+      "Entender qué significa un exponente negativo y uno fraccionario.",
+      "Escribir raíces y fracciones como potencias, que es lo que se necesita para derivar e integrar.",
+    ],
+    idea: "Una potencia es una multiplicación repetida. Sus propiedades permiten juntar, separar y reescribir expresiones. Para derivar e integrar casi siempre hay que pasar raíces y fracciones a potencias: √x = x^½ y 1/x² = x⁻².",
+    sintesis: `
+      <section><h3>Qué es una potencia</h3>
+        <p>aⁿ significa multiplicar a por sí mismo n veces: 2³ = 2·2·2 = 8. a es la base y n el exponente.</p>
+      </section>
+      <section><h3>Propiedades con la misma base</h3>
+        <p><span class="formula">aᵐ · aⁿ = aᵐ⁺ⁿ</span> &nbsp; multiplicar: se suman los exponentes (x³·x⁵ = x⁸).</p>
+        <p><span class="formula">aᵐ / aⁿ = aᵐ⁻ⁿ</span> &nbsp; dividir: se restan (x⁷/x² = x⁵).</p>
+        <p><span class="formula">(aᵐ)ⁿ = aᵐ·ⁿ</span> &nbsp; potencia de potencia: se multiplican ((x³)⁴ = x¹²).</p>
+        <p><span class="formula">a⁰ = 1 &nbsp;·&nbsp; a¹ = a</span></p>
+        <p>Con e funciona igual: e⁻ˣ · e²⁺²ˣ = e⁻ˣ⁺²⁺²ˣ = eˣ⁺². Eso resuelve el Ej. 3 del final 1.</p>
+      </section>
+      <section><h3>Exponente negativo</h3>
+        <p>Un exponente negativo significa <b>dar vuelta</b> (pasar abajo): <span class="formula">a⁻ⁿ = 1/aⁿ</span>. Ejemplo: 2⁻³ = 1/2³ = 1/8. Al revés también sirve: 1/x² = x⁻².</p>
+      </section>
+      <section><h3>Exponente fraccionario: las raíces</h3>
+        <p>Una raíz es una potencia con exponente fracción: <span class="formula">ⁿ√(aᵐ) = aᵐ/ⁿ</span>. El de abajo de la fracción es el índice de la raíz.</p>
+        <p>√x = x^½ &nbsp;·&nbsp; ∛x = x^⅓ &nbsp;·&nbsp; √(x³) = x^(3/2) &nbsp;·&nbsp; 1/√x = x^(−½)</p>
+        <p>Ejemplo numérico: 8^(1/3) = ∛8 = 2.</p>
+      </section>
+      <section><h3>Potencia de un producto o de una fracción</h3>
+        <p>(a·b)ⁿ = aⁿ·bⁿ y (a/b)ⁿ = aⁿ/bⁿ. Ojo: <b>no</b> vale para sumas: (a + b)² no es a² + b² (eso se ve en la base 0.4).</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> multiplicar los exponentes cuando hay que sumarlos (x³·x⁵ no es x¹⁵); pensar que un exponente negativo da un número negativo (2⁻³ = 1/8, no −8); repartir la potencia en una suma.",
+    videosConcepto: [
+      { titulo: "Todas las leyes de los exponentes", canal: "Daniel Carreón", url: "https://www.youtube.com/watch?v=ainnlQ_Owq8", datos: "12 min · 2023 · 2 millones de vistas", nota: "Subtema: todas las propiedades en un solo video, corto." },
+      { titulo: "Potencia con exponente negativo: explicación", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=ti73Q4Uy1Fk", datos: "13 min · 2020 · 1,4 millones de vistas", nota: "Subtema: exponente negativo." },
+      { titulo: "Potencia con exponente fracción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=IqW4-JUrd3k", datos: "6 min · 2018 · 1,8 millones de vistas", nota: "Subtema: exponente fraccionario y raíces." },
+      { titulo: "Potencia de números negativos", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=KLQglFEaxSw", datos: "14 min · 2020 · 1,2 millones de vistas", nota: "Subtema: (−2)² frente a −2²." },
+    ],
+    videosEjercicios: [
+      { titulo: "Propiedades de la potenciación combinadas, ejemplo 5", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=4zI7Q77AOY4", datos: "21 min · 2022 · 369 mil vistas", nota: "Varias propiedades en un mismo ejercicio." },
+      { titulo: "Potencia con exponente fraccionario, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=28LXC1INrGY", datos: "9 min · 2025 · 161 mil vistas", nota: "Pasar de raíz a potencia y resolver." },
+    ],
+    grupos: [
+      { titulo: "A. Propiedades", nota: "Escribí solo el exponente que queda", items: [
+        { id: "x1", q: "x³ · x⁵ = x<sup>?</sup>. ¿Qué exponente queda?", tipo: "num", v: 8, pista: "Misma base multiplicando: se suman los exponentes.", sol: ["3 + 5 = 8", "x³·x⁵ = <b>x⁸</b>"] },
+        { id: "x2", q: "x⁷ / x² = x<sup>?</sup>", tipo: "num", v: 5, pista: "Misma base dividiendo: se restan.", sol: ["7 − 2 = 5", "<b>x⁵</b>"] },
+        { id: "x3", q: "(x³)⁴ = x<sup>?</sup>", tipo: "num", v: 12, pista: "Potencia de potencia: se multiplican.", sol: ["3·4 = 12", "<b>x¹²</b>"] },
+        { id: "x4", q: "e⁻ˣ · e²⁺²ˣ = ? (el Ej. 3 del final 1)", tipo: "mc", ops: ["eˣ⁺²", "e⁻²ˣ²⁻²ˣ", "e³ˣ⁺²", "e²"], ok: 0, pista: "Se suman los exponentes: −x + 2 + 2x.", sol: ["−x + (2 + 2x) = x + 2", "Resultado: <b>eˣ⁺²</b>"] },
+        { id: "x5", q: "¿Cuánto vale <b>5⁰</b>?", tipo: "num", v: 1, pista: "Todo número (distinto de 0) elevado a la 0 da lo mismo.", sol: ["a⁰ = 1", "5⁰ = <b>1</b>"] },
+      ] },
+      { titulo: "B. Exponentes negativos y fraccionarios", nota: "Fracciones como 1/8; exponentes como −2 o 1/2", items: [
+        { id: "x6", q: "Calculá <b>2⁻³</b>.", tipo: "frac", v: [1, 8], pista: "Exponente negativo: pasá abajo. 1/2³.", sol: ["2⁻³ = 1/2³", "= <b>1/8</b>"] },
+        { id: "x7", q: "Escribí <b>√x</b> como potencia de x. ¿Cuál es el exponente?", tipo: "num", v: 0.5, pista: "La raíz cuadrada tiene índice 2: x¹ᐟ².", sol: ["√x = x^(1/2)", "Exponente: <b>1/2</b>"] },
+        { id: "x8", q: "Escribí <b>1/x²</b> como potencia de x. ¿Cuál es el exponente?", tipo: "num", v: -2, pista: "Pasar de abajo hacia arriba cambia el signo del exponente.", sol: ["1/x² = x⁻²", "Exponente: <b>−2</b>"] },
+        { id: "x9", q: "Calculá <b>8^(1/3)</b>.", tipo: "num", v: 2, pista: "Es la raíz cúbica de 8: ¿qué número multiplicado 3 veces da 8?", sol: ["8^(1/3) = ∛8", "2·2·2 = 8 → <b>2</b>"] },
+        { id: "x10", q: "Escribí <b>√(x³)</b> como potencia de x. ¿Cuál es el exponente?", tipo: "num", v: 1.5, pista: "ⁿ√(aᵐ) = aᵐ/ⁿ: m = 3, n = 2.", sol: ["√(x³) = x^(3/2)", "Exponente: <b>3/2</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo usar las propiedades de potencias de igual base (multiplicar, dividir, potencia de potencia).",
+      "Sé qué significa un exponente negativo.",
+      "Puedo pasar una raíz a potencia con exponente fraccionario.",
+    ],
+    explicar: [
+      { id: "e31", q: "¿Por qué x³·x⁵ = x⁸?", modelo: "Porque x³ es x·x·x y x⁵ es x·x·x·x·x. Juntos son ocho x multiplicadas, o sea x⁸: los exponentes se suman." },
+      { id: "e32", q: "¿Qué significa un exponente negativo?", modelo: "Que la potencia pasa al denominador: a⁻ⁿ = 1/aⁿ. No hace negativo al número; por ejemplo 2⁻³ = 1/8." },
+      { id: "e33", q: "¿Cómo escribís √x como potencia y para qué sirve?", modelo: "√x = x^(1/2). Sirve porque las reglas de derivar e integrar potencias funcionan con exponentes, así que primero hay que escribir las raíces como potencias." },
+    ],
+  },
+  b4: {
+    usaEn: "Derivadas de producto y cadena (temas 4 y 5), Barrow con −(x−2)(x+3) (tema 13), (4−2x)² del Ej. 2 y límites (base 0.5).",
+    objetivos: [
+      "Aplicar la propiedad distributiva y multiplicar polinomios.",
+      "Desarrollar un binomio al cuadrado sin el error típico.",
+      "Sacar factor común y factorizar una diferencia de cuadrados.",
+    ],
+    idea: "Hay dos movimientos opuestos: desarrollar (sacar paréntesis multiplicando) y factorizar (volver a escribir como multiplicación). Desarrollar se usa para integrar polinomios; factorizar, para simplificar y para resolver ecuaciones y límites.",
+    sintesis: `
+      <section><h3>Términos semejantes</h3>
+        <p>Solo se pueden sumar los términos que tienen la misma parte con letras: 3x + 5x = 8x y 2x² − x² = x², pero x² + x queda así.</p>
+      </section>
+      <section><h3>Propiedad distributiva</h3>
+        <p>Un número (o término) que multiplica a un paréntesis multiplica a <b>cada</b> término de adentro: <span class="formula">a·(b + c) = a·b + a·c</span>. Ejemplo: 3x(x − 5) = 3x² − 15x.</p>
+        <p>Polinomio por polinomio: cada término del primero por cada término del segundo, y después se juntan los semejantes:</p>
+        <p><span class="formula">(x − 2)(x + 3) = x² + 3x − 2x − 6 = x² + x − 6</span></p>
+        <p>Si además hay un menos adelante: −(x − 2)(x + 3) = −x² − x + 6 (el del Ej. 4 del final 2).</p>
+      </section>
+      <section><h3>Binomio al cuadrado</h3>
+        <p><span class="formula">(a + b)² = a² + 2ab + b² &nbsp;·&nbsp; (a − b)² = a² − 2ab + b²</span></p>
+        <p>Sale de multiplicar (a + b)(a + b). Ejemplo del Ej. 2 del final 2: (4 − 2x)² = 16 − 16x + 4x².</p>
+      </section>
+      <section><h3>Factorizar: el camino de vuelta</h3>
+        <p><b>Factor común:</b> si todos los términos tienen algo en común, se saca afuera: x² + 5x = x(x + 5) y 6x³ − 9x = 3x(2x² − 3). Para controlar, aplicás la distributiva y tenés que volver a lo de antes.</p>
+        <p><b>Diferencia de cuadrados:</b> <span class="formula">a² − b² = (a + b)(a − b)</span>. Ejemplo: x² − 9 = (x + 3)(x − 3) y x² − 4 = (x + 2)(x − 2).</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> escribir (a + b)² = a² + b² (falta el 2ab); multiplicar solo el primer término del paréntesis; olvidarse de cambiar los signos cuando hay un menos adelante.",
+    videosConcepto: [
+      { titulo: "Multiplicación: monomio por polinomio", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=_hHpYgZ6e_s", datos: "7 min · 2017 · 1,7 millones de vistas", nota: "Subtema: propiedad distributiva." },
+      { titulo: "Multiplicación: polinomio por polinomio", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=6-1NJt3-lTg", datos: "11 min · 2017 · 5,9 millones de vistas", nota: "Subtema: multiplicar dos paréntesis." },
+      { titulo: "Cuadrado de un binomio: introducción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=YdOhSrz58cU", datos: "6 min · 2020 · 1,9 millones de vistas", nota: "Subtema: binomio al cuadrado." },
+      { titulo: "Qué es factorizar", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=sSfO1CsKJ4g", datos: "11 min · 2019 · 5,6 millones de vistas", nota: "Subtema: la idea de factorizar." },
+      { titulo: "Factor común, método 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=fVlFxTQTmB4", datos: "10 min · 2016 · 4,5 millones de vistas", nota: "Subtema: sacar factor común." },
+      { titulo: "Diferencia de cuadrados: introducción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=kFeyY6En37I", datos: "14 min · 2023 · 246 mil vistas", nota: "Subtema: diferencia de cuadrados." },
+    ],
+    videosEjercicios: [
+      { titulo: "Cuadrado de un binomio, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=neUJQQIy11g", datos: "12 min · 2020 · 2,6 millones de vistas", nota: "Desarrollos paso a paso." },
+      { titulo: "Factorización por diferencia de cuadrados: ejemplos", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=dmUjA2V_vOQ", datos: "3 min · 2016 · 2,9 millones de vistas", nota: "Varios ejemplos cortos." },
+    ],
+    grupos: [
+      { titulo: "A. Desarrollar", nota: "Escribí el resultado sin paréntesis, por ejemplo 3x^2 - 15x (usá ^ para el exponente)", items: [
+        { id: "al1", q: "Desarrollá <b>3x(x − 5)</b>.", tipo: "expr", f: x => 3 * x * (x - 5), sinParentesis: true, pista: "Multiplicá 3x por x y 3x por −5.", sol: ["3x·x = 3x²", "3x·(−5) = −15x", "Resultado: <b>3x² − 15x</b>"] },
+        { id: "al2", q: "Desarrollá <b>(x − 2)(x + 3)</b>.", tipo: "expr", f: x => (x - 2) * (x + 3), sinParentesis: true, pista: "Cada término del primero por cada término del segundo, y juntá los semejantes.", sol: ["x·x + x·3 − 2·x − 2·3 = x² + 3x − 2x − 6", "Resultado: <b>x² + x − 6</b>"] },
+        { id: "al3", q: "Desarrollá <b>−(x − 2)(x + 3)</b> (el del Ej. 4 del final 2).", tipo: "expr", f: x => -(x - 2) * (x + 3), sinParentesis: true, pista: "Primero (x − 2)(x + 3) = x² + x − 6 y después cambiá todos los signos.", sol: ["(x − 2)(x + 3) = x² + x − 6", "Con el menos: <b>−x² − x + 6</b>"] },
+        { id: "al4", q: "Desarrollá <b>(4 − 2x)²</b> (el del Ej. 2 del final 2).", tipo: "expr", f: x => (4 - 2 * x) ** 2, sinParentesis: true, pista: "(a − b)² = a² − 2ab + b², con a = 4 y b = 2x.", sol: ["a² = 16; 2ab = 2·4·2x = 16x; b² = (2x)² = 4x²", "Resultado: <b>16 − 16x + 4x²</b>"] },
+        { id: "al5", q: "¿Cuánto es <b>(a + b)²</b>?", tipo: "mc", ops: ["a² + 2ab + b²", "a² + b²", "2a + 2b", "a² + ab + b²"], ok: 0, pista: "Multiplicá (a + b)(a + b).", sol: ["(a + b)(a + b) = a² + ab + ba + b²", "= <b>a² + 2ab + b²</b>"] },
+      ] },
+      { titulo: "B. Factorizar", nota: "Escribí el resultado con paréntesis, por ejemplo x(x+5)", items: [
+        { id: "al6", q: "Sacá factor común en <b>x² + 5x</b>.", tipo: "expr", f: x => x * x + 5 * x, conParentesis: true, pista: "¿Qué tienen en común x² y 5x?", sol: ["Los dos tienen una x", "x² + 5x = <b>x(x + 5)</b>"] },
+        { id: "al7", q: "Sacá factor común en <b>x³ − 4x</b>.", tipo: "expr", f: x => x ** 3 - 4 * x, conParentesis: true, pista: "Sacá una x afuera. Si querés seguir, lo que queda es una diferencia de cuadrados.", sol: ["x³ − 4x = x(x² − 4)", "Y como x² − 4 = (x + 2)(x − 2): <b>x(x + 2)(x − 2)</b>"] },
+        { id: "al8", q: "Factorizá <b>x² − 9</b>.", tipo: "mc", ops: ["(x + 3)(x − 3)", "(x − 3)²", "(x + 9)(x − 1)", "x(x − 9)"], ok: 0, pista: "Es una diferencia de cuadrados: x² − 3².", sol: ["a² − b² = (a + b)(a − b) con a = x y b = 3", "<b>(x + 3)(x − 3)</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo aplicar la distributiva y multiplicar dos paréntesis.",
+      "Desarrollo un binomio al cuadrado sin olvidar el 2ab.",
+      "Puedo sacar factor común y factorizar una diferencia de cuadrados.",
+    ],
+    explicar: [
+      { id: "e41", q: "¿Por qué (a + b)² no es a² + b²?", modelo: "Porque (a + b)² es (a + b)(a + b), y al multiplicar aparecen también los productos cruzados ab y ba. Por eso queda a² + 2ab + b²." },
+      { id: "e42", q: "¿Qué es sacar factor común?", modelo: "Es escribir una suma como una multiplicación, sacando afuera lo que se repite en todos los términos. Por ejemplo, x² + 5x = x(x + 5). Se controla aplicando la distributiva." },
+      { id: "e43", q: "¿Cómo se factoriza una diferencia de cuadrados?", modelo: "a² − b² = (a + b)(a − b): una suma por una resta de las bases. Por ejemplo, x² − 9 = (x + 3)(x − 3)." },
+    ],
+  },
+  b5: {
+    usaEn: "Derivada por definición (tema 3).",
+    objetivos: [
+      "Explicar qué significa el límite de una función.",
+      "Calcular límites por sustitución directa.",
+      "Resolver una indeterminación 0/0 factorizando y simplificando.",
+    ],
+    idea: "El límite responde a qué valor se acerca f(x) cuando x se acerca a un número, aunque la función no esté definida justo ahí. Es la herramienta con la que se define la derivada.",
+    sintesis: `
+      <section><h3>Qué es un límite</h3>
+        <p><span class="formula">lím (x→a) f(x) = L</span> se lee "el límite de f(x) cuando x tiende a a es L" y significa que, si x se acerca cada vez más a a (sin llegar), f(x) se acerca cada vez más a L.</p>
+      </section>
+      <section><h3>Sustitución directa</h3>
+        <p>El primer paso siempre es reemplazar x por a. Si da un número, ese es el límite: lím (x→2) (3x + 1) = 3·2 + 1 = 7.</p>
+      </section>
+      <section><h3>La indeterminación 0/0</h3>
+        <p>Si al reemplazar te queda 0/0, eso no es un resultado: significa que hay que trabajar la expresión. El método más usado es <b>factorizar y simplificar</b> (base 0.4), y después volver a reemplazar:</p>
+        <p><span class="formula">lím (x→1) (x² − 1)/(x − 1) = lím (x→1) (x + 1)(x − 1)/(x − 1) = lím (x→1) (x + 1) = 2</span></p>
+        <p>Se puede tachar (x − 1) porque x se acerca a 1 pero no vale 1, así que (x − 1) no es cero.</p>
+      </section>
+      <section><h3>Para qué lo vas a usar</h3>
+        <p>La derivada por definición es un límite con la letra h que siempre da 0/0 al principio:</p>
+        <p><span class="formula">lím (h→0) (6h + h²)/h = lím (h→0) h(6 + h)/h = lím (h→0) (6 + h) = 6</span></p>
+        <p>Factor común h, tachás, y reemplazás h por 0.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> dar 0/0 como resultado; tachar términos que se están sumando (solo se tachan factores que multiplican); olvidarse de reemplazar al final después de simplificar.",
+    videosConcepto: [
+      { titulo: "Límites: introducción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=ibwpFFxVIrQ", datos: "23 min · 2026 (nuevo) · 61 mil vistas", nota: "Subtema: qué es un límite." },
+      { titulo: "Límite en un punto, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=nTaiyaoyJhw", datos: "6 min · 2017 · 3,6 millones de vistas", nota: "Subtema: sustitución directa." },
+      { titulo: "Solución de límites por factorización: introducción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=kRaL0widcCY", datos: "8 min · 2018 · 3,9 millones de vistas", nota: "Subtema: indeterminación 0/0." },
+    ],
+    videosEjercicios: [
+      { titulo: "Solución de límites por factorización, ejemplo 2", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=kO_D4w13vyg", datos: "8 min · 2017 · 2,6 millones de vistas", nota: "Un 0/0 resuelto paso a paso." },
+      { titulo: "Límites por factorización: factor común y diferencia de cuadrados", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=GYrHJ1RhHog", datos: "25 min · del curso completo de límites", nota: "Los dos casos que más se usan." },
+    ],
+    grupos: [
+      { titulo: "A. Calcular límites", nota: "Respondé con un número", items: [
+        { id: "l1", q: "lím (x→2) de <b>3x + 1</b>", tipo: "num", v: 7, pista: "Reemplazá x por 2.", sol: ["3·2 + 1 = 7", "Límite: <b>7</b>"] },
+        { id: "l2", q: "lím (x→3) de <b>x²</b>", tipo: "num", v: 9, pista: "Reemplazá x por 3.", sol: ["3² = 9", "Límite: <b>9</b>"] },
+        { id: "l3", q: "Al reemplazar te quedó <b>0/0</b>. ¿Qué hacés?", tipo: "mc", ops: ["Factorizo, simplifico y vuelvo a reemplazar", "El límite es 0", "El límite no existe", "El límite es 1"], ok: 0, pista: "0/0 no es un resultado.", sol: ["0/0 es una indeterminación", "Hay que <b>factorizar, simplificar y volver a reemplazar</b>"] },
+        { id: "l4", q: "lím (x→1) de <b>(x² − 1)/(x − 1)</b>", tipo: "num", v: 2, pista: "x² − 1 = (x + 1)(x − 1).", sol: ["(x + 1)(x − 1)/(x − 1) = x + 1", "Reemplazando: 1 + 1 = <b>2</b>"] },
+        { id: "l5", q: "lím (x→2) de <b>(x² − 4)/(x − 2)</b>", tipo: "num", v: 4, pista: "Diferencia de cuadrados: x² − 4 = (x + 2)(x − 2).", sol: ["(x + 2)(x − 2)/(x − 2) = x + 2", "Reemplazando: 2 + 2 = <b>4</b>"] },
+        { id: "l6", q: "lím (x→0) de <b>(x² + 5x)/x</b>", tipo: "num", v: 5, pista: "Factor común x arriba.", sol: ["x(x + 5)/x = x + 5", "Reemplazando: 0 + 5 = <b>5</b>"] },
+        { id: "l7", q: "lím (h→0) de <b>(6h + h²)/h</b> (así son las derivadas por definición)", tipo: "num", v: 6, pista: "Factor común h arriba, tachás y reemplazás h por 0.", sol: ["h(6 + h)/h = 6 + h", "Con h = 0: <b>6</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo explicar qué significa un límite.",
+      "Sé que el primer paso es reemplazar.",
+      "Puedo resolver un 0/0 factorizando y simplificando.",
+    ],
+    explicar: [
+      { id: "e51", q: "¿Qué significa lím (x→a) f(x) = L?", modelo: "Que cuando x se acerca cada vez más al número a, sin llegar a valer a, los valores de f(x) se acercan cada vez más a L." },
+      { id: "e52", q: "¿Qué hacés si al reemplazar te da 0/0?", modelo: "0/0 es una indeterminación, no un resultado. Factorizo el numerador o el denominador, tacho el factor que se repite y vuelvo a reemplazar." },
+    ],
+  },
+  b6: {
+    usaEn: "Recta tangente y normal (temas 6 y 7, Ej. 2 del final) y gráficos de las áreas (temas 14 a 16).",
+    objetivos: [
+      "Explicar qué es una función y evaluarla en un número.",
+      "Calcular la pendiente de una recta y escribir su ecuación con un punto y la pendiente.",
+      "Saber cuándo dos rectas son paralelas o perpendiculares (la base de la recta normal).",
+      "Reconocer una parábola y encontrar su vértice.",
+    ],
+    idea: "Una función asigna a cada x un único valor f(x). La recta es la función más simple: queda definida por su pendiente (cuánto sube) y un punto. La recta tangente del examen es exactamente eso: una recta con la pendiente que da la derivada.",
+    sintesis: `
+      <section><h3>Qué es una función</h3>
+        <p>Una función f es una regla que a cada número x le asigna <b>un único</b> resultado, que se escribe f(x). Su gráfica es el conjunto de puntos (x ; f(x)).</p>
+      </section>
+      <section><h3>Evaluar una función</h3>
+        <p>Evaluar en un número es reemplazar la x por ese número, <b>siempre entre paréntesis</b>. Si f(x) = x² − 3x, entonces f(−2) = (−2)² − 3·(−2) = 4 + 6 = 10. En el examen: f(x) = (x − 4)/(x + 2) en x = −1 da (−1 − 4)/(−1 + 2) = −5.</p>
+      </section>
+      <section><h3>Dominio e imagen</h3>
+        <p>El dominio son los x que se pueden usar (por ejemplo, no se puede dividir por 0 ni sacar raíz cuadrada de un negativo). La imagen son los valores que toma f(x). Es lo mismo que viste en el tema 1 con seno y coseno.</p>
+      </section>
+      <section><h3>La recta y su pendiente</h3>
+        <p>Una recta es y = mx + b. <b>m es la pendiente</b>: cuánto sube (o baja, si es negativa) la recta cuando x avanza 1. <b>b es la ordenada al origen</b>: donde corta al eje y.</p>
+        <p>Con dos puntos: <span class="formula">m = (y₂ − y₁) / (x₂ − x₁)</span>. Entre (1 ; 2) y (3 ; 8): m = (8 − 2)/(3 − 1) = 3.</p>
+      </section>
+      <section><h3>Ecuación con un punto y la pendiente</h3>
+        <p><span class="formula">y − y₀ = m·(x − x₀)</span>, y después se despeja y. Con m = 2 y el punto (1 ; 5): y − 5 = 2(x − 1) → y = 2x − 2 + 5 → y = 2x + 3. <b>Así se arma la recta tangente</b>: el punto es el de tangencia y m es la derivada en ese punto.</p>
+      </section>
+      <section><h3>Paralelas y perpendiculares</h3>
+        <p>Dos rectas son <b>paralelas</b> si tienen la misma pendiente. Son <b>perpendiculares</b> si sus pendientes multiplicadas dan −1, o sea <span class="formula">m⊥ = −1/m</span> (das vuelta y cambiás el signo). Si la tangente tiene m = 3, la <b>normal</b> tiene m = −1/3.</p>
+      </section>
+      <section><h3>La parábola</h3>
+        <p>y = ax² + bx + c tiene forma de U (si a &gt; 0) o de U invertida (si a &lt; 0). Su vértice está en <span class="formula">x = −b / (2a)</span>. Por ejemplo, la del Ej. 6 del final 1, y = 4x − x², tiene a = −1 y b = 4: vértice en x = −4/(−2) = 2, y vale 4·2 − 2² = 4.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> evaluar sin paréntesis (−2² en lugar de (−2)²); dar vuelta la resta en la fórmula de la pendiente solo arriba o solo abajo; para la normal, cambiar el signo pero no dar vuelta la pendiente (o al revés).",
+    videosConcepto: [
+      { titulo: "Qué es función: concepto de función", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=Ll7xfe3HoZE", datos: "11 min · 2018 · 7,7 millones de vistas", nota: "Subtema: qué es una función." },
+      { titulo: "Evaluar funciones, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=tZ8AYOOB9G4", datos: "12 min · 2023 · 1,8 millones de vistas", nota: "Subtema: evaluar f(a)." },
+      { titulo: "Dominio y rango de una función", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=H40lcwlgPMk", datos: "11 min · 2018 · 6,8 millones de vistas", nota: "Subtema: dominio e imagen (rango)." },
+      { titulo: "Qué es la pendiente de una recta", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=dtZPpA5Qh_0", datos: "20 min · 2026 (nuevo) · 159 mil vistas", nota: "Subtema: pendiente." },
+      { titulo: "Ecuación punto-pendiente, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=fQT_v2p71aA", datos: "4 min · 2016 · 1,8 millones de vistas", nota: "Subtema: ecuación con un punto y la pendiente." },
+      { titulo: "Rectas paralelas y perpendiculares", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=fD_u6mZzFRM", datos: "24 min · 2026 (nuevo) · 170 mil vistas", nota: "Subtema: paralelas y perpendiculares (la recta normal)." },
+      { titulo: "Gráfica de la función cuadrática", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=6JQw45YO3Fs", datos: "14 min · 2018 · 10,7 millones de vistas", nota: "Subtema: la parábola." },
+    ],
+    videosEjercicios: [
+      { titulo: "Ecuación de la recta punto-pendiente, ejemplo 3", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=AFw9V6VVUWo", datos: "14 min · 2022 · 563 mil vistas", nota: "Armar y despejar la ecuación." },
+      { titulo: "Pendiente de la recta conociendo dos puntos, ejemplo 3", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=_7wgr7vTRxk", datos: "8 min · 2020 · 147 mil vistas", nota: "Con fracciones." },
+      { titulo: "Vértice de una parábola", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=iZ4guTg3tXg", datos: "10 min · 2018 · 3,1 millones de vistas", nota: "Encontrar el vértice paso a paso." },
+    ],
+    grupos: [
+      { titulo: "A. Evaluar funciones", nota: "Respondé con un número", items: [
+        { id: "fn1", q: "Si f(x) = x² − 3x, ¿cuánto vale <b>f(−2)</b>?", tipo: "num", v: 10, pista: "Reemplazá con paréntesis: (−2)² − 3·(−2).", sol: ["(−2)² = 4; −3·(−2) = 6", "4 + 6 = <b>10</b>"] },
+        { id: "fn2", q: "Si f(x) = (x − 4)/(x + 2), ¿cuánto vale <b>f(−1)</b>? (es el Ej. 2 del final 1)", tipo: "num", v: -5, pista: "Arriba: −1 − 4. Abajo: −1 + 2.", sol: ["(−1 − 4)/(−1 + 2) = −5/1", "= <b>−5</b>"] },
+      ] },
+      { titulo: "B. Rectas", nota: "Pendientes como número o fracción (−1/3); ecuaciones como 2x + 3", items: [
+        { id: "fn3", q: "Pendiente de la recta que pasa por (1 ; 2) y (3 ; 8)", tipo: "num", v: 3, pista: "m = (8 − 2)/(3 − 1).", sol: ["(8 − 2)/(3 − 1) = 6/2", "m = <b>3</b>"] },
+        { id: "fn4", q: "¿Cuál es la ordenada al origen de <b>y = −x + 4</b>?", tipo: "num", v: 4, pista: "Es el número que está solo (b en y = mx + b).", sol: ["y = −x + 4: m = −1 y b = 4", "Ordenada al origen: <b>4</b>"] },
+        { id: "fn5", q: "Escribí la recta con pendiente 2 que pasa por (1 ; 5), despejada: y = …", tipo: "expr", f: x => 2 * x + 3, pista: "y − 5 = 2(x − 1). Distribuí y pasá el 5 sumando.", sol: ["y − 5 = 2(x − 1) → y − 5 = 2x − 2", "y = 2x − 2 + 5 → y = <b>2x + 3</b>"] },
+        { id: "fn6", q: "Una recta tiene pendiente 3. ¿Qué pendiente tiene una perpendicular? (así se saca la normal)", tipo: "frac", v: [-1, 3], pista: "m⊥ = −1/m.", sol: ["m⊥ = −1/3", "Das vuelta el 3 y cambiás el signo: <b>−1/3</b>"] },
+        { id: "fn7", q: "¿Qué pendiente tiene una recta paralela a <b>y = 14x − 2</b>?", tipo: "num", v: 14, pista: "Las paralelas tienen la misma pendiente.", sol: ["La pendiente de y = 14x − 2 es 14", "La paralela también: <b>14</b>"] },
+      ] },
+      { titulo: "C. Parábola", nota: "Respondé con un número", items: [
+        { id: "fn8", q: "¿En qué x está el vértice de <b>y = x² − 4x + 1</b>?", tipo: "num", v: 2, pista: "x = −b/(2a), con a = 1 y b = −4.", sol: ["x = −(−4)/(2·1) = 4/2", "x = <b>2</b>"] },
+        { id: "fn9", q: "La parábola <b>y = 4x − x²</b>, ¿es una U o una U invertida?", tipo: "mc", ops: ["U invertida, porque a = −1 es negativo", "U, porque a = 4 es positivo", "U, porque no tiene término independiente", "No es una parábola"], ok: 0, pista: "Mirá el número que acompaña a x².", sol: ["El coeficiente de x² es −1", "Negativo → <b>U invertida</b> (por eso en el Ej. 6 del final 1 queda arriba de la recta)"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo evaluar una función en un número, usando paréntesis.",
+      "Puedo calcular una pendiente y armar la ecuación con un punto y la pendiente.",
+      "Sé sacar la pendiente perpendicular (−1/m).",
+      "Reconozco una parábola y sé encontrar su vértice.",
+    ],
+    explicar: [
+      { id: "e61", q: "¿Qué significa la pendiente de una recta?", modelo: "Es cuánto sube (si es positiva) o baja (si es negativa) la recta por cada unidad que avanza x. Se calcula como (y₂ − y₁)/(x₂ − x₁)." },
+      { id: "e62", q: "¿Cómo armás la ecuación de una recta si conocés un punto y la pendiente?", modelo: "Uso y − y₀ = m(x − x₀), reemplazo el punto y la pendiente, distribuyo y despejo y. Así se arma la recta tangente, con m igual a la derivada." },
+      { id: "e63", q: "¿Qué pendiente tiene una recta perpendicular a otra de pendiente m?", modelo: "−1/m: se da vuelta la pendiente y se le cambia el signo. Esa es la pendiente de la recta normal." },
+    ],
+  },
+  b7: {
+    usaEn: "Derivadas de eˣ y ln x (tema 3), integrales que dan logaritmo (tema 10) y x·eˣ por partes (Ej. 5 del final).",
+    objetivos: [
+      "Saber qué es el número e y cómo es la función eˣ.",
+      "Explicar qué es un logaritmo y en particular el logaritmo natural ln.",
+      "Usar los valores especiales (ln 1, ln e, e⁰) y las propiedades de los logaritmos.",
+    ],
+    idea: "El número e ≈ 2,718 es la base preferida del cálculo porque eˣ es la única función que es igual a su propia derivada. El logaritmo natural ln es la operación inversa: ln x es el exponente al que hay que elevar e para obtener x.",
+    sintesis: `
+      <section><h3>El número e y la función exponencial</h3>
+        <p>e es un número como π: <b>e ≈ 2,71828</b>. La función eˣ siempre da positivo, crece muy rápido, y vale 1 en x = 0 (porque e⁰ = 1). En la calculadora está como eˣ (casi siempre con SHIFT + ln).</p>
+      </section>
+      <section><h3>Qué es un logaritmo</h3>
+        <p>El logaritmo responde a la pregunta "¿a qué exponente hay que elevar la base para obtener este número?". log₂ 8 = 3 porque 2³ = 8.</p>
+        <p>El <b>logaritmo natural</b> es el de base e y se escribe ln: <span class="formula">ln x = y significa e^y = x</span>.</p>
+      </section>
+      <section><h3>Valores que conviene saber de memoria</h3>
+        <p><span class="formula">ln 1 = 0 &nbsp;·&nbsp; ln e = 1 &nbsp;·&nbsp; e⁰ = 1 &nbsp;·&nbsp; ln(eˣ) = x &nbsp;·&nbsp; e^(ln x) = x</span></p>
+        <p>El ln solo existe para números positivos: ln(0) y ln(−2) no existen. Por eso en las integrales aparece ln|x| (con valor absoluto).</p>
+      </section>
+      <section><h3>Propiedades de los logaritmos</h3>
+        <p><span class="formula">ln(a·b) = ln a + ln b</span> &nbsp; el logaritmo de un producto es la suma.</p>
+        <p><span class="formula">ln(a/b) = ln a − ln b</span> &nbsp; el de un cociente es la resta.</p>
+        <p><span class="formula">ln(aⁿ) = n·ln a</span> &nbsp; el exponente pasa adelante multiplicando.</p>
+        <p>Ojo: ln(a + b) <b>no</b> se separa.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> pensar que ln(a + b) = ln a + ln b; calcular ln de un negativo; confundir log (base 10) con ln (base e) en la calculadora.",
+    videosConcepto: [
+      { titulo: "¿Qué es el número e?", canal: "Derivando", url: "https://www.youtube.com/watch?v=Z5czpA-fyMU", datos: "4 min · 2016 · 1,9 millones de vistas", nota: "Subtema: de dónde sale el número e." },
+      { titulo: "Función exponencial: características", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=IhsZKreUPE0", datos: "29 min · 2021 · 4 millones de vistas", nota: "Subtema: cómo es la función exponencial." },
+      { titulo: "Logaritmos: introducción y conceptos básicos", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=pZTuEHrnOMg", datos: "8 min · 2018 · 5,9 millones de vistas", nota: "Subtema: qué es un logaritmo." },
+      { titulo: "Logaritmo natural: ¿qué es?", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=C0BIfEB0eJM", datos: "6 min · 2018 · 2,4 millones de vistas", nota: "Subtema: el logaritmo natural ln." },
+      { titulo: "Propiedades: logaritmo de un producto", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=m5qBf1qJjEo", datos: "7 min · 2018 · 2,8 millones de vistas", nota: "Subtema: ln(a·b)." },
+      { titulo: "Propiedades: logaritmo de un cociente", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=EiOFGGhWLlY", datos: "10 min · 2018 · 2,3 millones de vistas", nota: "Subtema: ln(a/b)." },
+      { titulo: "Propiedades: logaritmo de una potencia", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=iYxfaDPLKbU", datos: "6 min · 2018 · 1,6 millones de vistas", nota: "Subtema: ln(aⁿ)." },
+    ],
+    videosEjercicios: [
+      { titulo: "Logaritmos de números particulares", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=6kiXVr3mVp8", datos: "7 min · 2018 · 1,9 millones de vistas", nota: "ln 1, ln e y otros valores especiales." },
+      { titulo: "Ecuaciones exponenciales con número de Euler, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=u_A7Q8CVDVU", datos: "9 min · 2020 · 555 mil vistas", nota: "e y ln trabajando juntos." },
+    ],
+    grupos: [
+      { titulo: "A. Valores especiales", nota: "Respondé con un número", items: [
+        { id: "lg1", q: "¿Cuánto vale <b>ln(e)</b>?", tipo: "num", v: 1, pista: "¿A qué exponente hay que elevar e para obtener e?", sol: ["e¹ = e", "ln(e) = <b>1</b>"] },
+        { id: "lg2", q: "¿Cuánto vale <b>ln(1)</b>?", tipo: "num", v: 0, pista: "¿A qué exponente hay que elevar e para obtener 1?", sol: ["e⁰ = 1", "ln(1) = <b>0</b>"] },
+        { id: "lg3", q: "¿Cuánto vale <b>ln(e⁵)</b>?", tipo: "num", v: 5, pista: "ln y e se cancelan.", sol: ["ln(eˣ) = x", "ln(e⁵) = <b>5</b>"] },
+        { id: "lg4", q: "¿Cuánto vale <b>e^(ln 7)</b>?", tipo: "num", v: 7, pista: "e y ln se cancelan.", sol: ["e^(ln x) = x", "<b>7</b>"] },
+        { id: "lg5", q: "Con la calculadora: <b>e²</b> (4 decimales)", tipo: "num", v: Math.exp(2), tol: 0.0006, pista: "Tecla eˣ (SHIFT + ln) y después 2.", sol: ["e² ≈ <b>7,3891</b>"] },
+      ] },
+      { titulo: "B. Propiedades", nota: "Elegí la opción correcta", items: [
+        { id: "lg6", q: "<b>ln(x·y)</b> es igual a…", tipo: "mc", ops: ["ln x + ln y", "ln x · ln y", "ln(x + y)", "x·ln y"], ok: 0, pista: "El logaritmo de un producto…", sol: ["ln(a·b) = ln a + ln b", "<b>ln x + ln y</b>"] },
+        { id: "lg7", q: "<b>ln(x³)</b> es igual a…", tipo: "mc", ops: ["3·ln x", "(ln x)³", "ln 3 + ln x", "3 + ln x"], ok: 0, pista: "El exponente pasa adelante multiplicando.", sol: ["ln(aⁿ) = n·ln a", "<b>3·ln x</b>"] },
+        { id: "lg8", q: "¿Cuánto vale <b>ln(−2)</b>?", tipo: "mc", ops: ["No existe: ln solo está definido para positivos", "−ln 2", "−0,6931", "0"], ok: 0, pista: "¿Hay algún exponente que haga que e elevado a eso dé negativo?", sol: ["e elevado a cualquier número da positivo", "ln de un negativo <b>no existe</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Sé qué es el número e y cómo es la función eˣ.",
+      "Puedo explicar qué es ln x.",
+      "Sé de memoria ln 1, ln e, e⁰ y las propiedades de los logaritmos.",
+    ],
+    explicar: [
+      { id: "e71", q: "¿Qué es ln x?", modelo: "Es el logaritmo natural, de base e: el exponente al que hay que elevar e ≈ 2,718 para obtener x. Por ejemplo ln(e) = 1 y ln(1) = 0." },
+      { id: "e72", q: "¿Por qué no existe ln(−2)?", modelo: "Porque e elevado a cualquier número siempre da positivo, así que no hay ningún exponente que dé −2." },
+    ],
+  },
+  b8: {
+    usaEn: "Problemas inversos de recta tangente (tema 7), puntos de intersección para las áreas (temas 15 y 16, Ej. 6) y puntos críticos (tema 17).",
+    objetivos: [
+      "Despejar x en una ecuación de primer grado.",
+      "Resolver una ecuación cuadrática con la fórmula resolvente.",
+      "Resolver ecuaciones de grado 3 sacando factor común o con Ruffini.",
+    ],
+    idea: "Resolver una ecuación es encontrar los x que hacen verdadera la igualdad. En el examen aparece para encontrar dónde se cortan dos curvas: se igualan las funciones y se resuelve.",
+    sintesis: `
+      <section><h3>Despejar</h3>
+        <p>Una ecuación es una balanza: lo que hacés de un lado lo tenés que hacer del otro. Para dejar x sola, aplicás la operación inversa: lo que suma pasa restando, lo que multiplica pasa dividiendo.</p>
+        <p><span class="formula">3x − 7 = 8 → 3x = 8 + 7 → 3x = 15 → x = 15/3 = 5</span></p>
+      </section>
+      <section><h3>Ecuación cuadrática: la fórmula resolvente</h3>
+        <p>Para ax² + bx + c = 0 (con todo de un lado y 0 del otro):</p>
+        <p><span class="formula">x = (−b ± √(b² − 4ac)) / (2a)</span></p>
+        <p>El ± da dos soluciones. Lo de adentro de la raíz (el discriminante) dice cuántas hay: positivo, dos; cero, una; negativo, ninguna real.</p>
+        <p>Ejemplo del Ej. 6 del final 1: 4x − x² = −x + 4 → x² − 5x + 4 = 0 → x = (5 ± √(25 − 16))/2 = (5 ± 3)/2 → x = 4 y x = 1.</p>
+      </section>
+      <section><h3>Si el producto da cero</h3>
+        <p>Si A·B = 0, entonces A = 0 o B = 0. Por eso conviene sacar factor común: x² − 3x = 0 → x(x − 3) = 0 → x = 0 o x = 3.</p>
+      </section>
+      <section><h3>Ecuaciones de grado 3</h3>
+        <p><b>Con factor común</b> (si no hay término sin x): x³ − 4x = 0 → x(x² − 4) = 0 → x = 0, x = 2 o x = −2. Es el Ej. 6 del final 2.</p>
+        <p><b>Con Ruffini</b> (si hay término independiente): se prueban los divisores del término independiente hasta encontrar uno que dé resto 0; eso baja el grado a una cuadrática, que se resuelve con la fórmula.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> usar la resolvente sin dejar 0 de un lado; equivocarse con el signo de −b cuando b es negativo; dividir por x en x³ − 4x = 0 y perder la solución x = 0.",
+    videosConcepto: [
+      { titulo: "Qué es despejar una ecuación y cómo se despeja", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=792dSUkHhgg", datos: "7 min · 2020 · 1,2 millones de vistas", nota: "Subtema: despejar." },
+      { titulo: "Ecuación cuadrática: introducción", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=_bP6NowsO-Y", datos: "5 min · 2017 · 2,4 millones de vistas", nota: "Subtema: qué es una ecuación cuadrática." },
+      { titulo: "Ecuación cuadrática por fórmula general, ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=BxrJmKdPHRs", datos: "10 min · 2017 · 9,5 millones de vistas", nota: "Subtema: la fórmula resolvente." },
+      { titulo: "Factorización por evaluación (Ruffini), ejemplo 1", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=stIFJ0GnS84", datos: "15 min · 2019 · 4 millones de vistas", nota: "Subtema: Ruffini para grado 3." },
+    ],
+    videosEjercicios: [
+      { titulo: "Ecuaciones lineales o de primer grado, ej. 1 a 3", canal: "julioprofe", url: "https://www.youtube.com/watch?v=qeKEA066OSs", datos: "5 min · 2010 · 3,9 millones de vistas", nota: "Despejes resueltos." },
+      { titulo: "Ecuación cuadrática por fórmula general, ejemplo 3", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=KJxWGwObrmY", datos: "9 min · 2017 · 786 mil vistas", nota: "Otro caso con la resolvente." },
+      { titulo: "Ruffini, ejemplo 2", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=K-LVtvEeEWE", datos: "10 min · 2019 · 543 mil vistas", nota: "Grado 3 paso a paso." },
+    ],
+    grupos: [
+      { titulo: "A. Despejar", nota: "Respondé con un número", items: [
+        { id: "ec1", q: "Resolvé <b>3x − 7 = 8</b>.", tipo: "num", v: 5, pista: "Pasá el 7 sumando y después el 3 dividiendo.", sol: ["3x = 15", "x = <b>5</b>"] },
+        { id: "ec2", q: "Resolvé <b>2x + 6 = 0</b>.", tipo: "num", v: -3, pista: "El 6 pasa restando.", sol: ["2x = −6", "x = <b>−3</b>"] },
+        { id: "ec3", q: "Resolvé <b>2x − 4 = 4</b>. (Así se resuelve \"¿dónde la pendiente vale 4?\" en el tema 7.)", tipo: "num", v: 4, pista: "El 4 pasa sumando: 2x = 8.", sol: ["2x = 8", "x = <b>4</b>"] },
+      ] },
+      { titulo: "B. Cuadráticas y grado 3", nota: "Elegí todas las soluciones", items: [
+        { id: "ec4", q: "Soluciones de <b>x² − 5x + 4 = 0</b> (las intersecciones del Ej. 6 del final 1)", tipo: "mc", ops: ["x = 1 y x = 4", "x = −1 y x = −4", "x = 5 y x = 4", "No tiene soluciones"], ok: 0, pista: "a = 1, b = −5, c = 4. Resolvente: (5 ± √(25 − 16))/2.", sol: ["√(25 − 16) = √9 = 3", "(5 + 3)/2 = 4 y (5 − 3)/2 = 1", "<b>x = 1 y x = 4</b>"] },
+        { id: "ec5", q: "Soluciones de <b>x³ − 4x = 0</b> (las intersecciones del Ej. 6 del final 2)", tipo: "mc", ops: ["x = −2, x = 0 y x = 2", "x = 2 y x = −2", "x = 4", "x = 0 y x = 4"], ok: 0, pista: "Factor común x. Después, x² − 4 = 0.", sol: ["x(x² − 4) = 0", "x = 0, o x² = 4 → x = 2 o x = −2", "<b>x = −2, 0 y 2</b>"] },
+        { id: "ec6", q: "Soluciones de <b>x² = 9</b>", tipo: "mc", ops: ["x = 3 y x = −3", "Solo x = 3", "x = 4,5", "x = 81"], ok: 0, pista: "¿Qué números al cuadrado dan 9? Hay dos.", sol: ["3² = 9 y (−3)² = 9", "<b>x = 3 y x = −3</b>"] },
+        { id: "ec7", q: "¿Cuántas soluciones reales tiene <b>x² + x + 1 = 0</b>?", tipo: "mc", ops: ["Ninguna: el discriminante es negativo", "Dos", "Una", "Infinitas"], ok: 0, pista: "Calculá b² − 4ac.", sol: ["b² − 4ac = 1 − 4 = −3", "Negativo → <b>ninguna solución real</b>"] },
+        { id: "ec8", q: "Soluciones de <b>x³ − 2x² − x + 2 = 0</b> (con Ruffini, probando divisores de 2)", tipo: "mc", ops: ["x = 1, x = −1 y x = 2", "x = 2 solamente", "x = 0, x = 1 y x = 2", "x = −2, x = 1 y x = −1"], ok: 0, pista: "Probá x = 1: 1 − 2 − 1 + 2 = 0. Con Ruffini queda x² − x − 2.", sol: ["x = 1 es raíz; Ruffini deja x² − x − 2", "x² − x − 2 = 0 → x = 2 y x = −1", "<b>x = 1, −1 y 2</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo despejar x en una ecuación de primer grado.",
+      "Puedo resolver una cuadrática con la fórmula resolvente.",
+      "Puedo resolver una de grado 3 con factor común o con Ruffini.",
+    ],
+    explicar: [
+      { id: "e81", q: "¿Qué significa resolver una ecuación?", modelo: "Encontrar los valores de x que hacen que la igualdad sea verdadera. Se despeja haciendo la misma operación de los dos lados." },
+      { id: "e82", q: "¿Cómo encontrás dónde se cortan dos curvas?", modelo: "Igualo las dos funciones, paso todo de un lado para que quede igual a 0 y resuelvo la ecuación (con despeje, resolvente, factor común o Ruffini). Los x que salen son los puntos de corte." },
+    ],
+  },
+  t01: {
+    objetivos: [
+      "Explicar qué es un radián y por qué se usa en lugar de los grados.",
+      "Pasar de grados a radianes y al revés.",
+      "Ubicar seno y coseno en la circunferencia trigonométrica.",
+      "Reconocer las gráficas de sen(x) y cos(x) y decir su dominio, imagen, período, amplitud y ceros.",
+    ],
+    lector: true,
+    datosTabla: `
+      <div class="datos-grid">
+        <div class="dato"><h4>Dominio</h4><span class="lbl">Qué es</span><p>Todos los valores de x que se pueden poner en la función.</p><span class="lbl">Cómo se encuentra</span><p>Te preguntás: ¿hay algún x para el que no se pueda calcular? Para seno y coseno no: cualquier ángulo, por grande o negativo que sea, tiene su punto P en la circunferencia. En la gráfica se ve porque la curva sigue para siempre hacia los dos lados.</p><span class="lbl">Resultado</span><p class="mono">ℝ (todos los números reales)</p></div>
+        <div class="dato"><h4>Imagen</h4><span class="lbl">Qué es</span><p>Todos los valores de y que la función llega a tomar.</p><span class="lbl">Cómo se encuentra</span><p>Mirás la gráfica de abajo hacia arriba: ¿cuál es el punto más bajo y cuál el más alto? Como P está en una circunferencia de radio 1, su altura y su corrimiento nunca pasan de 1 ni bajan de −1. Los corchetes [ ] indican que −1 y 1 también se alcanzan.</p><span class="lbl">Resultado</span><p class="mono">[−1, 1]</p></div>
+        <div class="dato"><h4>Período</h4><span class="lbl">Qué es</span><p>El largo del tramo más corto que se repite igual una y otra vez.</p><span class="lbl">Cómo se encuentra</span><p>Buscás en la gráfica dónde vuelve a empezar el mismo dibujo, por ejemplo de un máximo al siguiente máximo, y medís esa distancia en el eje x. En la circunferencia: P vuelve al mismo lugar después de una vuelta completa, que mide 2π.</p><span class="lbl">Resultado</span><p class="mono">2π</p></div>
+        <div class="dato"><h4>Amplitud</h4><span class="lbl">Qué es</span><p>Cuánto sube la onda desde su línea del medio. Es la mitad de la distancia entre el máximo y el mínimo.</p><span class="lbl">Cómo se encuentra</span><p class="mono">(máximo − mínimo) / 2</p><p>Para seno y coseno: (1 − (−1)) / 2 = 2 / 2 = 1.</p><span class="lbl">Resultado</span><p class="mono">1</p></div>
+        <div class="dato"><h4>Ceros (o raíces)</h4><span class="lbl">Qué es</span><p>Los x donde la gráfica corta el eje x, o sea donde y = 0.</p><span class="lbl">Cómo se encuentra</span><p><span class="c-sen">Seno</span>: buscás dónde la altura de P es 0. Eso pasa a la derecha (x = 0) y a la izquierda (x = π) de la circunferencia, y se repite cada media vuelta (π): …, −π, 0, π, 2π, … <span class="c-cos">Coseno</span>: buscás dónde el corrimiento de P es 0: arriba (π/2) y abajo (3π/2), también cada π.</p><span class="lbl">Resultado</span><p class="mono">sen: x = kπ · cos: x = π/2 + kπ</p></div>
+        <div class="dato"><h4>Máximo y mínimo</h4><span class="lbl">Qué es</span><p>El punto más alto (máximo) y el más bajo (mínimo) de la gráfica.</p><span class="lbl">Cómo se encuentra</span><p><span class="c-sen">Seno</span>: P está arriba de todo en π/2 (vale 1) y abajo de todo en 3π/2 (vale −1). <span class="c-cos">Coseno</span>: a la derecha de todo en 0 (vale 1) y a la izquierda de todo en π (vale −1). Se repiten cada vuelta completa: por eso se suma 2kπ y no kπ.</p><span class="lbl">Resultado</span><p class="mono">sen máx: π/2 + 2kπ · cos máx: 2kπ</p></div>
+        <div class="dato"><h4>¿Qué es la k?</h4><span class="lbl">Qué es</span><p>Un número entero cualquiera: …, −2, −1, 0, 1, 2, … Se usa para escribir con una sola fórmula las infinitas soluciones que se repiten.</p><span class="lbl">Ejemplo</span><p>Ceros del seno, x = kπ: con k = 0 da 0; con k = 1 da π; con k = 2 da 2π; con k = −1 da −π.</p></div>
+        <div class="dato"><h4>La tabla de valores</h4><span class="lbl">Cómo se completa</span><p>Ubicás P en la circunferencia en cada ángulo y leés sus coordenadas (cos x ; sen x):</p><p class="mono">0 → (1 ; 0)<br>π/2 → (0 ; 1)<br>π → (−1 ; 0)<br>3π/2 → (0 ; −1)<br>2π → (1 ; 0)</p><p>El primer número es el coseno y el segundo, el seno.</p></div>
+      </div>`,
+    idea: "El radián mide un ángulo usando el propio radio como regla. Seno y coseno son las dos coordenadas de un punto que gira sobre una circunferencia de radio 1; si las graficás, obtenés ondas que se repiten cada 2π.",
+    sintesis: `
+      <section><h3>¿Qué es un radián?</h3>
+        <p>Tomá una circunferencia y recorré sobre su borde un arco <b>del mismo largo que el radio</b>. El ángulo que barriste mide <b>1 radián</b> (unos 57,3°). En una vuelta completa entran 2π radios, o sea unos 6,28. Por eso:</p>
+        <p><span class="formula">360° = 2π rad &nbsp;·&nbsp; 180° = π rad</span></p>
+      </section>
+      <section><h3>¿Por qué no seguir con grados?</h3>
+        <p>En una función, <i>x</i> es un número real que se ubica en el eje horizontal. El radián convierte el ángulo en un número: es el largo del arco en una circunferencia de radio 1. Por eso, para trabajar con funciones, <b>la calculadora va en modo RAD</b> (Clases 2 y 3 de tus apuntes).</p>
+      </section>
+      <section><h3>Cómo convertir</h3>
+        <p>Es una regla de tres con 180° = π:</p>
+        <p><span class="formula">grados → radianes: multiplicás por π/180</span></p>
+        <p><span class="formula">radianes → grados: multiplicás por 180/π</span></p>
+        <p>Ejemplo: 90° · π/180 = 90π/180 = <b>π/2</b>. Simplificá siempre la fracción.</p>
+      </section>
+      <section><h3>La circunferencia trigonométrica</h3>
+        <p>Es una circunferencia de radio 1 con centro en el origen. Para cada ángulo <i>x</i> hay un punto P sobre ella, y sus coordenadas son <b>(cos x, sen x)</b>:</p>
+        <p>· <span class="c-cos">coseno</span> = cuánto se corre P hacia la derecha (positivo) o la izquierda (negativo).<br>· <span class="c-sen">seno</span> = cuánto sube P (positivo) o baja (negativo).</p>
+      </section>
+      <section><h3>De la circunferencia a la gráfica</h3>
+        <p>Si anotás la <b>altura</b> de P mientras gira, dibujás y = sen x. Si anotás el <b>corrimiento horizontal</b>, dibujás y = cos x. Como después de una vuelta (2π) P vuelve al mismo lugar, las gráficas se repiten cada 2π. Probalo moviendo el control de la figura.</p>
+      </section>`,
+    tablaCaract: true,
+    errores: "<b>Errores típicos:</b> calcular con la calculadora en modo DEG (grados); confundir período (cada cuánto se repite) con amplitud (cuánto sube); escribir un solo cero cuando en realidad se repiten (x = kπ, con k entero).",
+    figura: true,
+    videosConcepto: [
+      { titulo: "Función seno: dominio, imagen, ceros, crecimiento y período", canal: "Rulo Caba", url: "https://www.youtube.com/watch?v=tW4y_GoiVF8", datos: "7 min · 2020", nota: "Explica cada dato de la tabla con los mismos nombres que tus apuntes." },
+      { titulo: "Función coseno: dominio, imagen, ceros y período", canal: "Rulo Caba", url: "https://www.youtube.com/watch?v=j-Ml_3XPycc", datos: "5 min · 2020", nota: "Lo mismo, para el coseno." },
+      { titulo: "Convertir grados en radianes", canal: "Susi Profe", url: "https://www.youtube.com/watch?v=62cUKxws9yA", datos: "6 min · 2018 · 569 mil vistas", nota: "Para el radián y la conversión. Usa la factorización del tema 0: si no la tenés clara, hacé ese tema antes." },
+      { titulo: "Gráfico del seno y coseno", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=IOz5tIoV3ko", datos: "17 min · 2023 · 984 mil vistas", nota: "Cómo salen las gráficas de la circunferencia." },
+    ],
+    videosEjercicios: [
+      { titulo: "Gráfico del seno y coseno sin calculadora", canal: "Matemáticas profe Alex", url: "https://www.youtube.com/watch?v=SNccJDUsu-A", datos: "23 min · 2023 · 242 mil vistas", nota: "Trae un ejercicio de práctica al final." },
+      { titulo: "Convierte grados a radianes con una regla de 3", canal: "Profe Oscar Roso", url: "https://www.youtube.com/watch?v=OzI9BMS3aZA", datos: "Mismo método que la Clase 1 de tus apuntes", nota: "Ejercicios de conversión resueltos." },
+    ],
+    grupos: [
+      { titulo: "A. Pasar de grados a radianes y al revés", nota: "Escribí con π, por ejemplo: pi/3 o 2π/3", items: [
+        { id: "a1", q: "Pasá <b>60°</b> a radianes.", tipo: "num", v: Math.PI / 3, conPi: true, pista: "Multiplicá 60 por π/180 y simplificá 60/180.", sol: ["60 · π/180 = 60π/180", "60/180 se simplifica a 1/3", "Resultado: <b>π/3</b>"] },
+        { id: "a2", q: "Pasá <b>45°</b> a radianes.", tipo: "num", v: Math.PI / 4, conPi: true, pista: "45/180 se simplifica dividiendo por 45.", sol: ["45 · π/180 = 45π/180", "45/180 = 1/4", "Resultado: <b>π/4</b>"] },
+        { id: "a3", q: "Pasá <b>270°</b> a radianes.", tipo: "num", v: 3 * Math.PI / 2, conPi: true, pista: "270/180: dividí los dos por 90.", sol: ["270 · π/180 = 270π/180", "270/180 = 3/2", "Resultado: <b>3π/2</b>"] },
+        { id: "a4", q: "Pasá <b>120°</b> a radianes.", tipo: "num", v: 2 * Math.PI / 3, conPi: true, pista: "120/180: dividí los dos por 60.", sol: ["120 · π/180 = 120π/180", "120/180 = 2/3", "Resultado: <b>2π/3</b>"] },
+        { id: "a5", q: "Pasá <b>π/6</b> a grados.", tipo: "num", v: 30, unidad: "°", pista: "Multiplicá por 180/π: la π se simplifica.", sol: ["(π/6) · 180/π", "Las π se cancelan: 180/6", "Resultado: <b>30°</b>"] },
+        { id: "a6", q: "Pasá <b>5π/4</b> a grados.", tipo: "num", v: 225, unidad: "°", pista: "180/4 = 45, y después multiplicás por 5.", sol: ["(5π/4) · 180/π = 5 · 180/4", "180/4 = 45", "5 · 45 = <b>225°</b>"] },
+        { id: "a7", q: "Pasá <b>7π/6</b> a grados.", tipo: "num", v: 210, unidad: "°", pista: "180/6 = 30, y después multiplicás por 7.", sol: ["(7π/6) · 180/π = 7 · 180/6", "180/6 = 30", "7 · 30 = <b>210°</b>"] },
+        { id: "a8", q: "¿Cuántos grados mide <b>1 radián</b>? Redondeá a un decimal.", tipo: "num", v: 57.3, tol: 0.06, unidad: "°", pista: "1 · 180/π. Usá la calculadora.", sol: ["1 · 180/π = 180/3,14159…", "≈ <b>57,3°</b>"] },
+      ] },
+      { titulo: "B. Seno y coseno en la circunferencia", nota: "Sin calculadora: imaginá el punto P = (cos x, sen x)", items: [
+        { id: "b1", q: "¿Cuánto vale <b>sen(π/2)</b>?", tipo: "num", v: 1, pista: "π/2 es 90°: P está arriba de todo.", sol: ["π/2 = 90°: P = (0, 1)", "El seno es la altura: <b>1</b>"] },
+        { id: "b2", q: "¿Cuánto vale <b>cos(π)</b>?", tipo: "num", v: -1, pista: "π es 180°: P está a la izquierda de todo.", sol: ["π = 180°: P = (−1, 0)", "El coseno es el corrimiento horizontal: <b>−1</b>"] },
+        { id: "b3", q: "¿Cuánto vale <b>sen(3π/2)</b>?", tipo: "num", v: -1, pista: "3π/2 es 270°: P está abajo de todo.", sol: ["3π/2 = 270°: P = (0, −1)", "La altura es <b>−1</b>"] },
+        { id: "b4", q: "¿Cuánto vale <b>cos(0)</b>?", tipo: "num", v: 1, pista: "En 0, P está a la derecha de todo.", sol: ["x = 0: P = (1, 0)", "El coseno vale <b>1</b>"] },
+        { id: "b5", q: "¿Cuánto vale <b>sen(π)</b>?", tipo: "num", v: 0, pista: "En 180°, ¿a qué altura está P?", sol: ["π = 180°: P = (−1, 0)", "Está sobre el eje: altura <b>0</b>"] },
+        { id: "b6", q: "¿Cuánto vale <b>cos(π/2)</b>?", tipo: "num", v: 0, pista: "En 90°, ¿cuánto se corre P hacia los costados?", sol: ["π/2 = 90°: P = (0, 1)", "No se corre: coseno <b>0</b>"] },
+      ] },
+      { titulo: "C. Calculadora en modo RAD", nota: "Poné la calculadora en RAD y usá 4 decimales", items: [
+        { id: "c1", q: "Calculá <b>sen(π/12)</b>. (Es el ejemplo de la Clase 3.)", tipo: "num", v: Math.sin(Math.PI / 12), tol: 0.0006, pista: "En la calculadora: SIN ( π ÷ 12 ). Revisá que diga R o RAD.", sol: ["Modo RAD", "sen(π/12) ≈ <b>0,2588</b>"] },
+        { id: "c2", q: "Calculá <b>cos(2)</b>. Ojo: es 2 radianes, no 2°.", tipo: "num", v: Math.cos(2), tol: 0.0006, pista: "Si te da 0,9994 la calculadora está en grados.", sol: ["Modo RAD", "cos(2) ≈ <b>−0,4161</b> (2 radianes es casi 115°, por eso da negativo)"] },
+        { id: "c3", q: "Calculaste sen(1) y la calculadora mostró <b>0,0175</b>. ¿Qué pasó?", tipo: "mc", ops: ["Está en modo grados (DEG): calculó el seno de 1°", "Está bien: sen(1) vale 0,0175", "Está en modo RAD", "Falta multiplicar por π"], ok: 0, pista: "1 radián son 57°: su seno no puede ser tan chico.", sol: ["sen(1 rad) ≈ 0,8415", "0,0175 es el seno de 1°: la calculadora estaba en DEG", "Hay que pasarla a RAD"] },
+      ] },
+      { titulo: "D. Leer las gráficas", nota: "Usá la tabla de características si la necesitás, y después probá sin mirarla", items: [
+        { id: "d1", q: "¿Cuál es la <b>imagen</b> de y = sen x?", tipo: "mc", ops: ["[−1, 1]", "Todos los reales (ℝ)", "[0, 1]", "[−2π, 2π]"], ok: 0, pista: "La imagen son los valores de y que alcanza: ¿cuánto sube y cuánto baja?", sol: ["El seno sube como mucho hasta 1 y baja hasta −1", "Imagen: <b>[−1, 1]</b>"] },
+        { id: "d2", q: "¿Cuál es el <b>período</b> de y = cos x?", tipo: "mc", ops: ["2π", "π", "1", "360"], ok: 0, pista: "¿Cada cuánto vuelve P al mismo lugar?", sol: ["Después de una vuelta completa (2π) la gráfica se repite", "Período: <b>2π</b>"] },
+        { id: "d3", q: "¿Dónde están los <b>ceros</b> de y = sen x?", tipo: "mc", ops: ["x = kπ, con k entero", "x = π/2 + kπ, con k entero", "x = 2kπ, con k entero", "No tiene ceros"], ok: 0, pista: "El seno vale 0 cuando P está sobre el eje horizontal: en 0, π, 2π…", sol: ["sen x = 0 en 0, π, 2π, 3π… y también en −π, −2π…", "Generalizando: <b>x = kπ</b>"] },
+        { id: "d4", q: "¿Qué función está graficada?", tipo: "mc", grafico: "cos", ops: ["y = cos x", "y = sen x", "y = −sen x", "y = −cos x"], ok: 0, pista: "Mirá cuánto vale en x = 0.", sol: ["En x = 0 vale 1, baja a −1 en x = π y vuelve a 1 en 2π", "Es <b>y = cos x</b>"] },
+        { id: "d5", q: "En [0, 2π], ¿en qué x alcanza el <b>mínimo</b> la función y = cos x?", tipo: "mc", ops: ["x = π", "x = 3π/2", "x = π/2", "x = 0"], ok: 0, pista: "¿Cuándo está P a la izquierda de todo?", sol: ["cos x = −1 cuando P está en (−1, 0)", "Eso pasa en <b>x = π</b>"] },
+        { id: "d6", q: "¿Cuánto vale la <b>amplitud</b> de y = sen x?", tipo: "num", v: 1, pista: "La amplitud es la distancia entre el eje medio y el máximo.", sol: ["El eje medio es y = 0 y el máximo es 1", "Amplitud: <b>1</b>"] },
+      ] },
+      { titulo: "E. Encontrar los datos de la tabla", nota: "Usá las tarjetas de “Qué es cada dato” y el lector de gráfica", items: [
+        { id: "h1", q: "Los ceros del seno son x = kπ. ¿Qué cero obtenés con <b>k = 2</b>?", tipo: "num", v: 2 * Math.PI, conPi: true, pista: "Reemplazá k por 2 en kπ.", sol: ["x = kπ con k = 2", "x = <b>2π</b>"] },
+        { id: "h2", q: "Los ceros del coseno son x = π/2 + kπ. ¿Qué cero obtenés con <b>k = 1</b>?", tipo: "num", v: 3 * Math.PI / 2, conPi: true, pista: "π/2 + π: pensá π como 2π/2 y sumá las fracciones.", sol: ["x = π/2 + 1·π", "π = 2π/2, entonces π/2 + 2π/2 = <b>3π/2</b>"] },
+        { id: "h3", q: "Con <b>k = −1</b>, ¿qué cero del seno obtenés con x = kπ?", tipo: "num", v: -Math.PI, conPi: true, pista: "k también puede ser negativo: (−1)·π.", sol: ["x = (−1)·π", "x = <b>−π</b> (está a la izquierda del 0 en la gráfica)"] },
+        { id: "h4", q: "Una onda tiene máximo 3 y mínimo −3. ¿Cuál es su <b>amplitud</b>?", tipo: "num", v: 3, pista: "Amplitud = (máximo − mínimo) / 2.", sol: ["(3 − (−3)) / 2 = 6 / 2", "Amplitud = <b>3</b>"] },
+        { id: "h5", q: "¿Por qué los máximos del seno se repiten cada 2π, pero los ceros se repiten cada π?", tipo: "mc", ops: ["Porque en cada vuelta P pasa dos veces por altura 0 (a la derecha y a la izquierda), pero llega arriba de todo una sola vez", "Porque el seno va más rápido cerca de los ceros", "Es un error: los ceros también se repiten cada 2π", "Porque π es la mitad de la amplitud"], ok: 0, pista: "Mové el ángulo de la figura una vuelta completa y contá cuántas veces la altura es 0 y cuántas veces es 1.", sol: ["En una vuelta, la altura de P es 0 en x = 0 y en x = π: dos veces", "La altura es 1 solo en x = π/2: una vez", "Por eso los ceros van cada π y los máximos cada 2π"] },
+        { id: "h6", q: "Según la circunferencia, ¿cuánto vale <b>cos(3π/2)</b>?", tipo: "num", v: 0, pista: "3π/2 = 270°: P está abajo de todo. ¿Cuánto se corre hacia los costados?", sol: ["3π/2 = 270°: P = (0 ; −1)", "El coseno es el primer número: <b>0</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo explicar qué es el dominio, la imagen, el período, la amplitud y los ceros, y cómo se encuentran.",
+      "Puedo pasar de grados a radianes y al revés sin mirar la fórmula.",
+      "Sé cuánto valen seno y coseno en 0, π/2, π, 3π/2 y 2π.",
+      "Puedo dibujar a mano las gráficas de sen x y cos x.",
+      "Puedo decir dominio, imagen, período, amplitud y ceros de sen x y cos x.",
+    ],
+    explicar: [
+      { id: "e1", q: "¿Qué es un radián?", modelo: "Es la medida de un ángulo cuyo arco mide lo mismo que el radio. Una vuelta completa son 2π radianes, o sea que 180° equivalen a π radianes." },
+      { id: "e2", q: "¿Por qué la calculadora tiene que estar en modo RAD?", modelo: "Porque en las funciones x es un número real, y los radianes expresan el ángulo como número. Si la calculadora está en grados, interpreta x como grados y da otro resultado (por ejemplo, sen(1) daría 0,0175 en lugar de 0,8415)." },
+      { id: "e3", q: "¿Qué representan seno y coseno en la circunferencia trigonométrica?", modelo: "Son las coordenadas del punto P que corresponde al ángulo x: el coseno es la coordenada horizontal y el seno la vertical. Como P vuelve al mismo lugar cada 2π, las dos funciones son periódicas con período 2π." },
+    ],
+  },
+  t02: {
+    usaEn: "Ej. 1 del final (1 punto): en los dos finales piden amplitud, período y desfase.",
+    antes: "el tema 1 (gráficas de sen y cos) y la base 0.2 (fracciones y signos: el desfase es una división con signos).",
+    transformador: true,
+    objetivos: [
+      "Reconocer A, B y C en una función como y = A·sen(Bx + C).",
+      "Calcular la amplitud, el período y el desfase, y explicar qué le hace cada uno a la gráfica.",
+      "Dibujar la gráfica sin tabla de valores, con 5 puntos clave.",
+      "Resolver el Ej. 1 de los dos finales en menos de 5 minutos.",
+    ],
+    idea: "Todas las funciones del Ej. 1 son el seno o el coseno del tema 1 transformados: estirados para arriba (amplitud), apretados o estirados para los costados (período) y corridos a la derecha o a la izquierda (desfase). Cada número de la fórmula controla una de esas tres cosas.",
+    sintesis: `
+      <section><h3>La forma general</h3>
+        <p><span class="formula">y = A · sen(B·x + C) + D</span> &nbsp;(o lo mismo con cos)</p>
+        <p>Cada letra es un número que transforma la gráfica básica de sen x o cos x. Lo primero es siempre <b>identificar A, B, C y D</b>, escribiendo lo de adentro del paréntesis como "número·x + número".</p>
+      </section>
+      <section><h3>A: la amplitud (cuánto sube)</h3>
+        <p><span class="formula">amplitud = |A|</span> &nbsp;(siempre positiva: es una distancia)</p>
+        <p>A estira la onda para arriba y para abajo. Con A = 3, la onda va de −3 a 3. Si A es negativo, además la gráfica se <b>da vuelta</b> (lo que subía ahora baja), pero la amplitud sigue siendo positiva: y = −4·sen x tiene amplitud 4.</p>
+      </section>
+      <section><h3>B: el período (cada cuánto se repite)</h3>
+        <p><span class="formula">período = 2π / |B|</span></p>
+        <p>B aprieta o estira la onda para los costados. sen x tarda 2π en hacer un ciclo; sen(2x) va el doble de rápido, así que tarda la mitad: 2π/2 = π. Con B = ½ va a la mitad de velocidad: 2π/(½) = 4π.</p>
+      </section>
+      <section><h3>C: el desfase (cuánto se corre)</h3>
+        <p><span class="formula">desfase = −C / B</span></p>
+        <p>Es el x donde la onda "empieza" su ciclo: el valor que hace cero lo de adentro del paréntesis. Se obtiene resolviendo B·x + C = 0. <b>Si da positivo, la gráfica se corre a la derecha; si da negativo, a la izquierda.</b></p>
+        <p>Ejemplo: y = sen(x − π/2) tiene B = 1 y C = −π/2, así que desfase = −(−π/2)/1 = π/2: se corre π/2 a la derecha.</p>
+        <p class="tip">Algunos libros escriben el desfase como C/B y aclaran "a la izquierda". Es lo mismo: lo importante es el valor y hacia dónde se corre. En el examen escribilo así: "desfase π/8 (se corre a la derecha)".</p>
+      </section>
+      <section><h3>D: el corrimiento vertical</h3>
+        <p>Sube o baja toda la gráfica. El eje del medio pasa a ser y = D y la imagen queda <span class="formula">[D − |A| , D + |A|]</span>. En los dos finales D = 0.</p>
+      </section>
+      <section><h3>Paso a paso con el Ej. 1 del final 2: f(x) = −2·cos(π/4 − 2x)</h3>
+        <p>1) Ordeno lo de adentro como "número·x + número": π/4 − 2x = <b>−2x + π/4</b>. Entonces A = −2, B = −2, C = π/4.</p>
+        <p>2) Amplitud = |−2| = <b>2</b>.</p>
+        <p>3) Período = 2π/|−2| = 2π/2 = <b>π</b>.</p>
+        <p>4) Desfase = −C/B = −(π/4)/(−2) = (π/4)/2 = <b>π/8</b> (positivo: se corre a la derecha).</p>
+        <p class="tip">Si preferís no trabajar con B negativo: como cos(−u) = cos(u), cos(π/4 − 2x) = cos(2x − π/4). Ahí B = 2 y C = −π/4, y el desfase da −(−π/4)/2 = π/8. Mismo resultado.</p>
+      </section>
+      <section><h3>Y el Ej. 1 del final 1: f(x) = −½·sen(2π − x)</h3>
+        <p>Ordeno: 2π − x = −x + 2π, así que A = −½, B = −1, C = 2π.</p>
+        <p>Amplitud = <b>½</b>. Período = 2π/|−1| = <b>2π</b>. Desfase = −2π/(−1) = <b>2π</b> (a la derecha).</p>
+        <p class="tip">Un desfase de 2π es exactamente un período: la onda se corre un ciclo entero y queda dibujada igual que sin correrse. Escribí "desfase 2π (equivale a no correrse)": muestra que entendiste.</p>
+      </section>
+      <section><h3>Graficar sin tabla: los 5 puntos clave</h3>
+        <p>Es el método de la Clase 3. Arrancás en el desfase y avanzás de a un cuarto de período:</p>
+        <p><span class="formula">x₀ = desfase · x₀ + T/4 · x₀ + T/2 · x₀ + 3T/4 · x₀ + T</span> &nbsp;(T = período)</p>
+        <p>Para el <span class="c-sen">seno</span>, en esos 5 puntos la altura es: <b>0, A, 0, −A, 0</b>. Para el <span class="c-cos">coseno</span>: <b>A, 0, −A, 0, A</b>. Unís los puntos con una curva suave y listo. Probalo en el transformador de abajo con los botones de los finales.</p>
+      </section>`,
+    errores: "<b>Errores típicos:</b> poner la amplitud negativa; calcular el período como 2π·B en lugar de 2π/B; no ordenar lo de adentro y tomar mal B y C (en π/4 − 2x, B es −2, no π/4); olvidar el signo menos del desfase (−C/B).",
+    videosConcepto: [
+      { titulo: "Amplitud de una función trigonométrica", canal: "Pi-ensa Matematik", url: "https://www.youtube.com/watch?v=FtS90Gx1KDE", datos: "6 min · 2019 · 97 mil vistas", nota: "Subtema: amplitud (A)." },
+      { titulo: "Período de una función trigonométrica", canal: "Pi-ensa Matematik", url: "https://www.youtube.com/watch?v=8b1iSKaxJ7I", datos: "13 min · 2019 · 158 mil vistas", nota: "Subtema: período (B)." },
+      { titulo: "Desfase de una función trigonométrica", canal: "Pi-ensa Matematik", url: "https://www.youtube.com/watch?v=oBkTKObHEnQ", datos: "10 min · 2019 · 109 mil vistas", nota: "Subtema: desfase (C)." },
+      { titulo: "Gráficas de seno y coseno sin tabla de valores", canal: "Profesor Particular Puebla", url: "https://www.youtube.com/watch?v=eRhOCycivmo", datos: "11 min · 2018 · 888 mil vistas · lo recomendaron tus profesoras (Clase 3)", nota: "Subtema: graficar con los puntos clave." },
+    ],
+    videosEjercicios: [
+      { titulo: "Amplitud, período y gráfica de seno, ejemplo 1", canal: "ElShowDelNerd", url: "https://www.youtube.com/watch?v=Q_14QgX2zG0", datos: "5 min · 2018 · 377 mil vistas", nota: "Un ejercicio corto, completo." },
+      { titulo: "Cómo graficar una función seno con desfase, sin calculadora", canal: "TecnoMáticas", url: "https://www.youtube.com/watch?v=_S2hBQLOcQQ", datos: "12 min · 2024", nota: "Con desfase, como en el examen." },
+      { titulo: "Gráficas de funciones trigonométricas paso a paso", canal: "Profesor Particular Puebla", url: "https://www.youtube.com/watch?v=ehz4iZGWiPg", datos: "14 min · 2018 · 760 mil vistas", nota: "Varios ejemplos, del mismo profesor del video de la Clase 3." },
+    ],
+    grupos: [
+      { titulo: "A. Identificar A, B y C", nota: "Respondé con un número; con π escribí pi", items: [
+        { id: "r1", q: "En <b>y = 3·sen(2x + π)</b>, ¿cuánto vale B?", tipo: "num", v: 2, pista: "B es el número que multiplica a x adentro del paréntesis.", sol: ["Adentro: 2x + π", "B = <b>2</b> (y C = π)"] },
+        { id: "r2", q: "En <b>y = −2·cos(π/4 − 2x)</b> (final 2), ¿cuánto vale B?", tipo: "num", v: -2, pista: "Ordená lo de adentro como número·x + número: −2x + π/4.", sol: ["π/4 − 2x = −2x + π/4", "B = <b>−2</b>"] },
+        { id: "r3", q: "En esa misma función, ¿cuánto vale C?", tipo: "num", v: Math.PI / 4, conPi: true, pista: "C es el número que queda sumando, sin x.", sol: ["−2x + π/4", "C = <b>π/4</b>"] },
+      ] },
+      { titulo: "B. Amplitud y período", nota: "Amplitud: |A| · Período: 2π/|B|", items: [
+        { id: "r4", q: "Amplitud de <b>y = 3·sen(2x)</b>", tipo: "num", v: 3, pista: "Es |A|.", sol: ["A = 3", "Amplitud = <b>3</b>"] },
+        { id: "r5", q: "Período de <b>y = 3·sen(2x)</b>", tipo: "num", v: Math.PI, conPi: true, pista: "2π/|B| con B = 2.", sol: ["2π/2", "= <b>π</b>"] },
+        { id: "r6", q: "Amplitud de <b>y = −4·sen x</b>", tipo: "num", v: 4, pista: "La amplitud es una distancia: valor absoluto. El menos solo da vuelta la gráfica.", sol: ["|−4| = 4", "Amplitud = <b>4</b> (la gráfica está dada vuelta)"] },
+        { id: "r7", q: "Período de <b>y = ½·sen(½x)</b> (Clase 3)", tipo: "num", v: 4 * Math.PI, conPi: true, pista: "2π dividido ½ es lo mismo que 2π multiplicado por 2.", sol: ["2π/(½) = 2π·2", "= <b>4π</b>"] },
+        { id: "r8", q: "Amplitud de <b>y = ½·sen(½x)</b>", tipo: "num", v: 0.5, pista: "|A| con A = ½. Podés escribir 1/2.", sol: ["A = ½", "Amplitud = <b>1/2</b>"] },
+        { id: "r9", q: "Período de <b>y = cos(3x)</b>", tipo: "num", v: 2 * Math.PI / 3, conPi: true, pista: "2π/3.", sol: ["2π/|3|", "= <b>2π/3</b>"] },
+      ] },
+      { titulo: "C. Desfase y corrimiento", nota: "Desfase: −C/B", items: [
+        { id: "r10", q: "Desfase de <b>y = sen(x − π/2)</b>", tipo: "num", v: Math.PI / 2, conPi: true, pista: "B = 1 y C = −π/2. Calculá −C/B.", sol: ["−(−π/2)/1", "= <b>π/2</b> (a la derecha)"] },
+        { id: "r11", q: "Desfase de <b>y = 2·cos(3x + π)</b>", tipo: "num", v: -Math.PI / 3, conPi: true, pista: "B = 3 y C = π. −C/B = −π/3.", sol: ["−π/3", "Negativo: <b>−π/3</b>, se corre a la izquierda"] },
+        { id: "r12", q: "La gráfica de <b>y = sen(x + π/4)</b>, respecto de sen x…", tipo: "mc", ops: ["se corre π/4 a la izquierda", "se corre π/4 a la derecha", "sube π/4", "se estira π/4"], ok: 0, pista: "Desfase = −C/B = −(π/4)/1. ¿Positivo o negativo?", sol: ["Desfase = −π/4", "Negativo → <b>π/4 a la izquierda</b>"] },
+        { id: "r13", q: "¿Cuál es la imagen de <b>y = sen(2x) + 1</b>?", tipo: "mc", ops: ["[0, 2]", "[−1, 1]", "[−2, 2]", "[1, 2]"], ok: 0, pista: "Imagen: [D − |A| , D + |A|], con A = 1 y D = 1.", sol: ["D − |A| = 0 y D + |A| = 2", "Imagen: <b>[0, 2]</b>"] },
+      ] },
+      { titulo: "D. El Ej. 1 de los finales", nota: "Con reloj: los tres datos en 5 minutos", items: [
+        { id: "r14", q: "Final 2: <b>f(x) = −2·cos(π/4 − 2x)</b>. Amplitud:", tipo: "num", v: 2, pista: "|A| con A = −2.", sol: ["|−2|", "= <b>2</b>"] },
+        { id: "r15", q: "Final 2: período", tipo: "num", v: Math.PI, conPi: true, pista: "B = −2 → 2π/|−2|.", sol: ["2π/2", "= <b>π</b>"] },
+        { id: "r16", q: "Final 2: desfase", tipo: "num", v: Math.PI / 8, conPi: true, pista: "−C/B con C = π/4 y B = −2. Ojo con los dos signos menos.", sol: ["−(π/4)/(−2) = (π/4)/2", "= <b>π/8</b> (a la derecha)"] },
+        { id: "r17", q: "Final 1: <b>f(x) = −½·sen(2π − x)</b>. Amplitud:", tipo: "num", v: 0.5, pista: "|A| con A = −½.", sol: ["|−½|", "= <b>1/2</b>"] },
+        { id: "r18", q: "Final 1: período", tipo: "num", v: 2 * Math.PI, conPi: true, pista: "Ordená: −x + 2π, así que B = −1.", sol: ["2π/|−1|", "= <b>2π</b>"] },
+        { id: "r19", q: "Final 1: desfase", tipo: "num", v: 2 * Math.PI, alt: [0], conPi: true, pista: "−C/B con C = 2π y B = −1.", sol: ["−(2π)/(−1)", "= <b>2π</b> a la derecha, que es un período entero: equivale a no correrse (0)"] },
+      ] },
+      { titulo: "E. Leer la gráfica", nota: "Mirá cuánto sube y cada cuánto se repite", items: [
+        { id: "r20", q: "¿Qué función está graficada?", tipo: "mc", grafico: { f: "sen", A: 2, B: 2, C: 0, D: 0 }, ops: ["y = 2·sen(2x)", "y = 2·sen x", "y = sen(2x)", "y = ½·sen(2x)"], ok: 0, pista: "Sube hasta 2 y entre 0 y 2π hace dos ciclos completos.", sol: ["Amplitud 2 → A = 2", "Período π (dos ciclos en 2π) → B = 2", "<b>y = 2·sen(2x)</b>"] },
+        { id: "r21", q: "¿Qué amplitud y qué período tiene esta gráfica?", tipo: "mc", grafico: { f: "cos", A: 3, B: 0.5, C: 0, D: 0 }, ops: ["Amplitud 3, período 4π", "Amplitud 3, período π", "Amplitud 6, período 2π", "Amplitud 1, período 4π"], ok: 0, pista: "Entre 0 y 2π hace solo medio ciclo.", sol: ["Sube hasta 3 → amplitud 3", "Medio ciclo en 2π → el ciclo entero mide <b>4π</b>"] },
+      ] },
+    ],
+    puedo: [
+      "Puedo identificar A, B y C, ordenando lo de adentro del paréntesis.",
+      "Calculo amplitud, período y desfase sin mirar las fórmulas.",
+      "Puedo dibujar la gráfica con los 5 puntos clave.",
+      "Resuelvo el Ej. 1 de los dos finales en menos de 5 minutos.",
+    ],
+    explicar: [
+      { id: "e201", q: "¿Qué es la amplitud y por qué es |A|?", modelo: "Es cuánto sube la onda desde su línea del medio. Es |A| porque A estira la gráfica verticalmente; si A es negativo la gráfica se da vuelta, pero la distancia sigue siendo positiva." },
+      { id: "e202", q: "¿Por qué el período es 2π/|B|?", modelo: "Porque B multiplica a x y hace que la onda vaya B veces más rápido. Si sen x tarda 2π en hacer un ciclo, sen(Bx) tarda 2π dividido B." },
+      { id: "e203", q: "¿Qué es el desfase y cómo se calcula?", modelo: "Es cuánto se corre la gráfica hacia los costados: el x donde empieza el ciclo. Se calcula resolviendo Bx + C = 0, o sea x = −C/B. Positivo, a la derecha; negativo, a la izquierda." },
+    ],
+  },
+  s3: {
+    simulacro: true,
+    instrucciones: "Resolvelo en papel, sin apuntes y con el reloj de 60 minutos. Recién al terminar cargá tus resultados abajo para corregirlos, y después mirá la resolución de cada ejercicio. Anotá el puntaje en la hoja Simulacros del Excel (fila Simulacro 3).",
+    origen: "Es tu último final (fotos ex 1 y ex 2). La función f(x) es la del examen. El enunciado del Ej. 1 no se conserva, así que lo reconstruí con el mismo estilo que los otros finales. El Ej. 6 lo agregué con la misma f(x), porque en este examen se usó una sola función para varios ítems.",
+    ejercicios: [
+      { n: 1, pts: 1, enunciado: "Sea g(x) = 3·cos(2x − π/3). Indicar amplitud, período y desfase. <i>(Reconstruido.)</i>",
+        res: `<p>Es una función trigonométrica (tiene cos): A = 3, B = 2, C = −π/3.</p>
+              <p>Amplitud = |3| = <b>3</b>. Período = 2π/|2| = <b>π</b>. Desfase = −C/B = −(−π/3)/2 = <b>π/6</b> (a la derecha).</p>
+              <p class="ojo"><b>Lo que pasó en el examen:</b> aplicaste período = 2π/|B| al polinomio f(x) = x³ − x² − 8x + 12. Esas fórmulas solo valen para y = A·sen(Bx + C) o y = A·cos(Bx + C). Antes de calcular, fijate el tipo de función: si tiene sen o cos, amplitud, período y desfase; si es un polinomio, derivadas e integrales.</p>` },
+      { n: 2, pts: 2, enunciado: "Sea f(x) = x³ + 12 − x² − 8x. Hallar la ecuación de la recta tangente y de la recta normal en x = 0.",
+        res: `<p>Primero ordeno, <b>sin perder términos</b>: f(x) = x³ − x² − 8x + 12.</p>
+              <p>Punto: f(0) = 12 → (0 ; 12). Derivada: f'(x) = 3x² − 2x − 8, así que m = f'(0) = −8.</p>
+              <p>Tangente: y − 12 = −8(x − 0) → <b>y = −8x + 12</b>.</p>
+              <p>Normal: m = −1/(−8) = 1/8 → y − 12 = ⅛(x − 0) → <b>y = x/8 + 12</b>.</p>
+              <p class="ojo"><b>Lo que pasó en el examen:</b> la tangente te salió bien ✅ y la pendiente de la normal también. Faltó escribir la ecuación de la normal. Además, al ordenar f se perdió el −x²: en x = 0 no cambió nada, pero arruinó los puntos críticos.</p>` },
+      { n: 3, pts: 2, enunciado: "Integrar ∫ 2(1 + 2x)³ dx. Verificar.",
+        res: `<p>Sustitución: u = 1 + 2x → du = 2 dx. El 2 de adelante con el dx es justo du.</p>
+              <p>∫ u³ du = u⁴/4 + C = <b>(1 + 2x)⁴/4 + C</b>.</p>
+              <p>Verificación: derivo (1 + 2x)⁴/4 → 4(1 + 2x)³·2 / 4 = 2(1 + 2x)³ ✓ (la regla de la cadena aporta el ·2).</p>
+              <p class="ojo"><b>Lo que pasó en el examen:</b> no la pudiste resolver. Es el tipo de integral del tema 9: lo de adentro del paréntesis es u, y su derivada (2) aparece afuera.</p>` },
+      { n: 4, pts: 1.5, enunciado: "Calcular aplicando la regla de Barrow: ∫ de −3 a 3 de (x³ − x² − 8x + 12) dx.",
+        res: `<p>Primitiva: F(x) = x⁴/4 − x³/3 − 4x² + 12x.</p>
+              <p>F(3) = 81/4 − 27/3 − 36 + 36 = 81/4 − 9 = <b>45/4</b>.</p>
+              <p>F(−3) = <b>(−3)⁴</b>/4 − (−3)³/3 − 4·(−3)² + 12·(−3) = 81/4 + 9 − 36 − 36 = <b>−171/4</b>.</p>
+              <p>F(3) − F(−3) = 45/4 + 171/4 = 216/4 = <b>54</b>.</p>
+              <p class="ojo"><b>Lo que pasó en el examen:</b> la primitiva estaba perfecta ✅. Escribiste −3⁴ en lugar de (−3)⁴ (da −81 en vez de 81) y faltó calcular F(3) para hacer F(3) − F(−3).</p>` },
+      { n: 5, pts: 1.5, enunciado: "Hallar los puntos críticos de f(x) = x³ − x² − 8x + 12 y clasificarlos (máximo o mínimo).",
+        res: `<p>f'(x) = 3x² − 2x − 8 = 0. Resolvente con a = 3, b = −2, c = −8:</p>
+              <p>x = (2 ± √(4 + 96))/6 = (2 ± 10)/6 → <b>x = 2</b> y <b>x = −4/3</b>.</p>
+              <p>Valores: f(2) = 8 − 4 − 16 + 12 = 0 y f(−4/3) = 500/27 ≈ 18,5.</p>
+              <p>Clasificación con f''(x) = 6x − 2: f''(2) = 10 &gt; 0 → <b>mínimo en (2 ; 0)</b>; f''(−4/3) = −10 &lt; 0 → <b>máximo en (−4/3 ; 500/27)</b>. También se ve con el signo de f': cambia de + a − en −4/3 y de − a + en 2.</p>
+              <p class="ojo"><b>Lo que pasó en el examen:</b> el planteo f'(x) = 0 era el correcto ✅, pero la derivada no tenía el −2x (por el término perdido) y la ecuación quedó sin resolver. Reforzá la base 0.7 (resolvente) y el tema 17.</p>` },
+      { n: 6, pts: 2, enunciado: "Calcular el área encerrada entre f(x) = x³ − x² − 8x + 12 y su recta tangente en x = 0. <i>(Agregado.)</i>",
+        res: `<p>La tangente es y = −8x + 12 (Ej. 2). Intersecciones: x³ − x² − 8x + 12 = −8x + 12 → x³ − x² = 0 → x²(x − 1) = 0 → <b>x = 0 y x = 1</b>.</p>
+              <p>Entre 0 y 1 la recta está arriba (techo): con x = 0,5, la curva da 8,125 y la recta 8.</p>
+              <p>Área = ∫ de 0 a 1 de [(−8x + 12) − (x³ − x² − 8x + 12)] dx = ∫ de 0 a 1 de (x² − x³) dx = [x³/3 − x⁴/4] de 0 a 1 = 1/3 − 1/4 = <b>1/12</b>.</p>` },
+    ],
+    grupos: [
+      { titulo: "Cargá tus resultados", nota: "Con π escribí pi; las ecuaciones como -8x+12; la integral sin el + C", items: [
+        { id: "s3a", q: "Ej. 1: amplitud de g(x) = 3·cos(2x − π/3)", tipo: "num", v: 3, pista: "|A|.", sol: ["Amplitud = <b>3</b>"] },
+        { id: "s3b", q: "Ej. 1: período", tipo: "num", v: Math.PI, conPi: true, pista: "2π/|B| con B = 2.", sol: ["2π/2 = <b>π</b>"] },
+        { id: "s3c", q: "Ej. 1: desfase", tipo: "num", v: Math.PI / 6, conPi: true, pista: "−C/B con C = −π/3 y B = 2.", sol: ["−(−π/3)/2 = <b>π/6</b>"] },
+        { id: "s3d", q: "Ej. 2: recta tangente en x = 0, y = …", tipo: "expr", f: x => -8 * x + 12, pista: "Punto (0 ; 12) y pendiente f'(0).", sol: ["<b>y = −8x + 12</b>"] },
+        { id: "s3e", q: "Ej. 2: recta normal en x = 0, y = …", tipo: "expr", f: x => x / 8 + 12, pista: "Pendiente −1/m con m = −8.", sol: ["<b>y = x/8 + 12</b>"] },
+        { id: "s3f", q: "Ej. 3: ∫ 2(1 + 2x)³ dx = … (sin el + C)", tipo: "expr", f: x => (1 + 2 * x) ** 4 / 4, salvoConstante: true, pista: "u = 1 + 2x, du = 2 dx.", sol: ["<b>(1 + 2x)⁴/4 + C</b>"] },
+        { id: "s3g", q: "Ej. 4: resultado de la integral entre −3 y 3", tipo: "num", v: 54, pista: "F(3) − F(−3), con (−3)⁴ entre paréntesis.", sol: ["45/4 − (−171/4) = <b>54</b>"] },
+        { id: "s3h", q: "Ej. 5: ¿cuáles son los puntos críticos?", tipo: "mc", ops: ["x = 2 y x = −4/3", "x = ±√(8/3)", "x = 0 y x = 2", "x = −3 y x = 2"], ok: 0, pista: "Resolvé 3x² − 2x − 8 = 0.", sol: ["(2 ± 10)/6 → <b>x = 2 y x = −4/3</b>"] },
+        { id: "s3i", q: "Ej. 5: ¿cómo se clasifican?", tipo: "mc", ops: ["Máximo en x = −4/3 y mínimo en x = 2", "Mínimo en x = −4/3 y máximo en x = 2", "Los dos son máximos", "Ninguno es máximo ni mínimo"], ok: 0, pista: "f''(x) = 6x − 2: evaluá en cada punto.", sol: ["f''(−4/3) &lt; 0 → máximo; f''(2) &gt; 0 → mínimo"] },
+        { id: "s3j", q: "Ej. 6: área entre f y su tangente en x = 0", tipo: "frac", v: [1, 12], pista: "∫ de 0 a 1 de (x² − x³) dx.", sol: ["1/3 − 1/4 = <b>1/12</b>"] },
+      ] },
+    ],
+  },
+};
+
+// ---------------- Estado y guardado ----------------
+const LS_KEY = "aula-anmat2-v1";
+let estado = { temas: {} };
+try { const raw = localStorage.getItem(LS_KEY); if (raw) estado = JSON.parse(raw) || estado; } catch (e) {}
+if (!estado.temas) estado.temas = {};
+function st(id) { if (!estado.temas[id]) estado.temas[id] = { pasos: {}, ej: {}, puedo: {}, explicar: {}, textos: {} }; const s = estado.temas[id]; for (const k of ["pasos", "ej", "puedo", "explicar", "textos"]) if (!s[k]) s[k] = {}; return s; }
+
+let dbDoc = null, escribiendo = false, pendiente = false, timer = null;
+function guardar() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(estado)); } catch (e) {}
+  if (ghToken) { clearTimeout(ghTimer); ghTimer = setTimeout(() => { ghTimer = null; ghEscribir(); }, 4000); }
+  if (!dbDoc) return;
+  clearTimeout(timer);
+  timer = setTimeout(escribirDb, 700);
+}
+async function escribirDb() {
+  if (escribiendo) { pendiente = true; return; }
+  escribiendo = true;
+  try { await dbDoc.set(JSON.parse(JSON.stringify({ ...estado, actualizado: new Date().toISOString() }))); setSync(true); }
+  catch (e) { setSync(false); }
+  escribiendo = false;
+  if (pendiente) { pendiente = false; escribirDb(); }
+}
+function setSync(ok) { document.getElementById("sync").textContent = ok ? "Tu avance se guarda en tu cuenta (y Claude lo puede leer para seguir tu progreso)." : "Tu avance se guarda en este navegador."; }
+function fusionar(remoto) {
+  if (!remoto || !remoto.temas) return;
+  for (const [id, r] of Object.entries(remoto.temas)) {
+    const s = st(id);
+    for (const k of ["pasos", "puedo", "explicar"]) for (const [kk, v] of Object.entries(r[k] || {})) if (v) s[k][kk] = true;
+    for (const [kk, v] of Object.entries(r.ej || {})) if (v === "ok" || !s.ej[kk]) s.ej[kk] = v;
+    for (const [kk, v] of Object.entries(r.textos || {})) if (v && !s.textos[kk]) s.textos[kk] = v;
+  }
+}
+(async () => {
+  try {
+    const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
+    if (!db) return;
+    const ref = db.doc("progreso/anmat2");
+    const snap = await ref.get();
+    dbDoc = ref;
+    if (snap.exists) { fusionar(snap.data()); try { localStorage.setItem(LS_KEY, JSON.stringify(estado)); } catch (e) {} render(); }
+    setSync(true);
+  } catch (e) { dbDoc = null; }
+})();
+
+// ---------------- Guardado en GitHub ----------------
+// El token lo pega la persona en su navegador; nunca va en el código de la página.
+const GH = { repo: "xkadmn/anmat", rama: "avance", ruta: "avance/progreso.json" };
+const GH_KEY = LS_KEY + "-gh-token";
+let ghToken = (() => { try { return localStorage.getItem(GH_KEY) || ""; } catch (e) { return ""; } })();
+let ghSha = null, ghTimer = null, ghOcupado = false, ghPendiente = false;
+function b64enc(s) { return btoa(unescape(encodeURIComponent(s))); }
+function b64dec(s) { return decodeURIComponent(escape(atob(s.replace(/\s/g, "")))); }
+function hora() { return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }); }
+function setGh(txt) { const el = document.getElementById("gh-estado"); if (el) el.textContent = txt; }
+function ghError(status) {
+  if (status === 401) return "el token no es válido o venció: creá uno nuevo";
+  if (status === 403 || status === 404) return "el token no tiene permiso de escritura sobre xkadmn/anmat";
+  return "no se pudo conectar (¿sin internet?). Tu avance quedó en este navegador y se reintenta solo";
+}
+async function ghApi(metodo, cuerpo) {
+  const url = `https://api.github.com/repos/${GH.repo}/contents/${GH.ruta}` + (metodo === "GET" ? `?ref=${GH.rama}` : "");
+  const headers = { Authorization: `Bearer ${ghToken}`, Accept: "application/vnd.github+json" };
+  if (cuerpo) headers["Content-Type"] = "application/json";
+  return fetch(url, { method: metodo, cache: "no-store", headers, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+}
+async function ghLeer() {
+  const r = await ghApi("GET");
+  if (r.status === 404) { const err = new Error("404"); err.status = 404; throw err; }
+  if (!r.ok) { const err = new Error(String(r.status)); err.status = r.status; throw err; }
+  const j = await r.json();
+  ghSha = j.sha;
+  return JSON.parse(b64dec(j.content));
+}
+async function ghEscribir() {
+  if (!ghToken) return;
+  if (ghOcupado) { ghPendiente = true; return; }
+  ghOcupado = true;
+  setGh("guardando…");
+  try {
+    let listo = false;
+    for (let intento = 0; intento < 3 && !listo; intento++) {
+      const datos = { ...estado, actualizado: new Date().toISOString(), dispositivo: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "celular" : "computadora" };
+      const cuerpo = { message: "Avance de estudio desde el " + datos.dispositivo, content: b64enc(JSON.stringify(datos, null, 1)), branch: GH.rama };
+      if (ghSha) cuerpo.sha = ghSha;
+      const r = await ghApi("PUT", cuerpo);
+      if (r.ok) { ghSha = (await r.json()).content.sha; listo = true; break; }
+      if (r.status === 409 || r.status === 422) { fusionar(await ghLeer()); try { localStorage.setItem(LS_KEY, JSON.stringify(estado)); } catch (e) {} continue; }
+      const err = new Error(String(r.status)); err.status = r.status; throw err;
+    }
+    setGh(listo ? `✓ guardado en GitHub a las ${hora()}` : ghError(0));
+  } catch (e) { setGh(ghError(e.status)); if (!e.status) { clearTimeout(ghTimer); ghTimer = setTimeout(() => { ghTimer = null; ghEscribir(); }, 30000); } }
+  ghOcupado = false;
+  if (ghPendiente) { ghPendiente = false; ghEscribir(); }
+}
+async function ghConectar() {
+  if (!ghToken) { setGh("sin conectar (el avance queda solo en este navegador)"); return; }
+  setGh("conectando…");
+  try {
+    const remoto = await ghLeer();
+    const antes = JSON.stringify(remoto.temas || {});
+    fusionar(remoto);
+    try { localStorage.setItem(LS_KEY, JSON.stringify(estado)); } catch (e) {}
+    render();
+    if (JSON.stringify(estado.temas) !== antes) await ghEscribir();
+    else setGh(`✓ conectado: avance al día (${hora()})`);
+  } catch (e) { setGh(ghError(e.status)); }
+}
+document.getElementById("gh-conectar").onclick = () => {
+  const v = document.getElementById("gh-token").value.trim();
+  if (!v) { setGh("pegá el token en el cuadro"); return; }
+  ghToken = v; try { localStorage.setItem(GH_KEY, v); } catch (e) {}
+  document.getElementById("gh-token").value = "";
+  ghConectar();
+};
+document.getElementById("gh-ahora").onclick = () => { if (!ghToken) { setGh("primero conectá con el token"); return; } clearTimeout(ghTimer); ghTimer = null; ghEscribir(); };
+document.getElementById("gh-quitar").onclick = () => { ghToken = ""; ghSha = null; try { localStorage.removeItem(GH_KEY); } catch (e) {} setGh("sin conectar (el avance queda solo en este navegador)"); };
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && ghTimer) { clearTimeout(ghTimer); ghTimer = null; ghEscribir(); }
+  if (document.visibilityState === "visible" && ghToken && !ghOcupado && !ghTimer) ghConectar();
+});
+
+// ---------------- Plan diario (sale del Excel) ----------------
+const PLAN = [{"f": "2026-10-27", "ej": "—", "tema": "Día sin estudio", "repaso": "—", "meta": "No se pudo estudiar. El plan se corrió un día y se sacó el mix de derivadas del 2/11 (se practica en el mini simulacro del 9/11)."}, {"f": "2026-10-28", "ej": "Base + Ej. 1", "tema": "Base 0.1: Factorizar y simplificar fracciones + Radianes y gráficas de sen y cos", "repaso": "—", "meta": "Primero la base 0.1 en la página Aula (síntesis, un video por subtema y ejercicios). Después: Convertir grados ↔ radianes. Graficar sen(x) y cos(x) con tabla y verificar en GeoGebra."}, {"f": "2026-10-29", "ej": "Base + Ej. 1", "tema": "Base 0.2: Signos, orden de las operaciones y fracciones + Amplitud, período y desfase", "repaso": "Base 0.1: Factorizar y simplificar fracciones · Radianes y gráficas de sen y cos", "meta": "Primero la base 0.2 en la página Aula (síntesis, un video por subtema y ejercicios). Después: Identificar A, B y C en A·sen(Bx+C). Calcular amplitud, período y desfase en 8 ejercicios (incluir B negativo)."}, {"f": "2026-10-30", "ej": "Base + Ej. 1", "tema": "Bases 0.3 y 0.4: Potencias y raíces · Distributiva, factor común y productos notables + Práctica tipo examen del Ej. 1", "repaso": "Base 0.2: Signos, orden de las operaciones y fracciones · Amplitud, período y desfase", "meta": "Primero las bases 0.3 y 0.4 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 10 ejercicios tipo examen (5 minutos o menos cada uno). Sumar dominio, imagen, ceros y la gráfica de tg(x) (Clase 2)."}, {"f": "2026-10-31", "ej": "Base + Ej. 2", "tema": "Base 0.5: Límites + Derivada por definición y tabla de derivadas", "repaso": "Base 0.1: Factorizar y simplificar fracciones · Base 0.3: Potencias y raíces · Base 0.4: Distributiva, factor común y productos notables · Radianes y gráficas de sen y cos", "meta": "Primero la base 0.5 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 3 derivadas por definición (límite del cociente incremental). Explicar la derivada como pendiente de la tangente. Memorizar la tabla (incluye ln, logₐ, aˣ y raíces). 20 derivadas directas."}, {"f": "2026-11-01", "ej": "Ej. 2", "tema": "Suma, producto y cociente", "repaso": "Base 0.2: Signos, orden de las operaciones y fracciones · Base 0.5: Límites · Amplitud, período y desfase · Derivada por definición y tabla de derivadas", "meta": "15 derivadas con producto y cociente, simplificando el resultado."}, {"f": "2026-11-02", "ej": "Base + Ej. 2", "tema": "Base 0.6: Funciones, rectas y parábolas + Regla de la cadena", "repaso": "Base 0.3: Potencias y raíces · Base 0.4: Distributiva, factor común y productos notables · Suma, producto y cociente", "meta": "Primero la base 0.6 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 15 derivadas con regla de la cadena, por ejemplo (4−2x)²."}, {"f": "2026-11-03", "ej": "Ej. 2", "tema": "Recta tangente y recta normal", "repaso": "Base 0.5: Límites · Base 0.6: Funciones, rectas y parábolas · Derivada por definición y tabla de derivadas · Regla de la cadena", "meta": "Aprender los pasos (punto, pendiente, ecuación). Pendiente de la normal = −1/m. 6 ejercicios."}, {"f": "2026-11-04", "ej": "Base + Ej. 2", "tema": "Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini + Tangente y normal con cociente y cadena", "repaso": "Base 0.1: Factorizar y simplificar fracciones · Radianes y gráficas de sen y cos · Suma, producto y cociente · Recta tangente y recta normal", "meta": "Primero la base 0.7 en la página Aula (síntesis, un video por subtema y ejercicios). Después: 6 ejercicios como (x−4)/(x+2) en x=−1 y (4−2x)² en x=1."}, {"f": "2026-11-05", "ej": "Base + Ej. 2", "tema": "Base 0.8: Número e y logaritmo natural + Problemas inversos de recta tangente", "repaso": "Base 0.2: Signos, orden de las operaciones y fracciones · Base 0.6: Funciones, rectas y parábolas · Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini · Amplitud, período y desfase · Regla de la cadena", "meta": "Primero la base 0.8 en la página Aula (síntesis, un video por subtema y ejercicios). Después: Hallar el punto con pendiente dada, la tangente paralela a una recta y un parámetro (Clase 4, actividades 2 a 4). Después, 3 ejercicios tipo examen del Ej. 2 con reloj."}, {"f": "2026-11-06", "ej": "Ej. 3", "tema": "Primitiva, integrales inmediatas y verificar derivando", "repaso": "Base 0.3: Potencias y raíces · Base 0.4: Distributiva, factor común y productos notables · Base 0.8: Número e y logaritmo natural · Recta tangente y recta normal · Problemas inversos de recta tangente", "meta": "20 integrales inmediatas, con raíces y potencias negativas (√x = x^½, 1/x² = x⁻²). Usar propiedades de potencias (eᵃ·eᵇ = eᵃ⁺ᵇ). Verificar cada una derivando."}, {"f": "2026-11-07", "ej": "Ej. 3", "tema": "Integración por sustitución", "repaso": "Base 0.5: Límites · Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini · Derivada por definición y tabla de derivadas · Primitiva, integrales inmediatas y verificar derivando", "meta": "10 integrales por sustitución, eligiendo bien u y du."}, {"f": "2026-11-08", "ej": "Ej. 3", "tema": "Sustitución que da logaritmo", "repaso": "Base 0.8: Número e y logaritmo natural · Suma, producto y cociente · Problemas inversos de recta tangente · Integración por sustitución", "meta": "8 ejercicios tipo ∫(2x−1)/(x²−x+2)dx, verificando cada uno."}, {"f": "2026-11-09", "ej": "Ej. 1-3", "tema": "Mini simulacro de los Ej. 1, 2 y 3", "repaso": "Base 0.6: Funciones, rectas y parábolas · Regla de la cadena · Primitiva, integrales inmediatas y verificar derivando · Sustitución que da logaritmo", "meta": "Simulacro de 30 minutos, corrección y registro de errores."}, {"f": "2026-11-10", "ej": "Ej. 5", "tema": "Integración por partes", "repaso": "Recta tangente y recta normal · Integración por sustitución", "meta": "8 ejercicios (x·eˣ, x·sen x, ln x). Partes aplicada dos veces (x²·eˣ). Saber elegir u y dv."}, {"f": "2026-11-11", "ej": "Ej. 3 y 5", "tema": "Elegir el método de integración", "repaso": "Base 0.7: Ecuaciones: despejar, cuadráticas y Ruffini · Sustitución que da logaritmo · Integración por partes", "meta": "15 integrales mezcladas: decidir el método antes de resolver (inmediata, sustitución o partes)."}, {"f": "2026-11-12", "ej": "Ej. 4", "tema": "Integral definida y regla de Barrow", "repaso": "Base 0.8: Número e y logaritmo natural · Problemas inversos de recta tangente · Elegir el método de integración", "meta": "8 integrales definidas con Barrow, cuidando signos y fracciones."}, {"f": "2026-11-13", "ej": "Ej. 4", "tema": "Práctica de Barrow con distributiva", "repaso": "Primitiva, integrales inmediatas y verificar derivando · Integración por partes · Integral definida y regla de Barrow", "meta": "8 ejercicios tipo ∫−(x−2)(x+3)dx: primero distribuir, después integrar."}, {"f": "2026-11-14", "ej": "Ej. 5", "tema": "Área bajo la curva", "repaso": "Integración por sustitución · Elegir el método de integración", "meta": "6 ejercicios con gráfico. Saber qué hacer cuando f es negativa."}, {"f": "2026-11-15", "ej": "Ej. 5", "tema": "Partes + Barrow (área)", "repaso": "Sustitución que da logaritmo · Integral definida y regla de Barrow · Área bajo la curva", "meta": "5 ejercicios tipo área de x·eˣ entre x=0 y x=1."}, {"f": "2026-11-16", "ej": "Ej. 3-5", "tema": "Mini simulacro de los Ej. 3, 4 y 5", "repaso": "—", "meta": "Simulacro de 30 minutos, corrección y registro de errores."}, {"f": "2026-11-17", "ej": "Ej. 6", "tema": "Área entre dos curvas", "repaso": "Integración por partes · Área bajo la curva", "meta": "Hallar intersecciones y plantear techo − piso. 5 ejercicios parábola–recta."}, {"f": "2026-11-18", "ej": "Ej. 6", "tema": "Intersecciones con cúbicas", "repaso": "Elegir el método de integración · Área entre dos curvas", "meta": "Factor común y Ruffini. 5 ejercicios tipo x³−2x+4 y 4+2x."}, {"f": "2026-11-19", "ej": "Ej. 6", "tema": "Práctica tipo examen del Ej. 6", "repaso": "Integral definida y regla de Barrow · Intersecciones con cúbicas", "meta": "4 ejercicios tipo examen, cada uno en 12 minutos o menos."}, {"f": "2026-11-20", "ej": "Todos", "tema": "SIMULACRO: final 2 de la foto", "repaso": "Área entre dos curvas", "meta": "60 minutos con reloj, sin apuntes. Anotar el puntaje en la hoja Simulacros."}, {"f": "2026-11-21", "ej": "Todos", "tema": "Corrección y refuerzo", "repaso": "Área bajo la curva · Intersecciones con cúbicas", "meta": "Corregir el simulacro, cargar errores y reforzar el ejercicio más flojo."}, {"f": "2026-11-22", "ej": "Todos", "tema": "SIMULACRO: final 1 de la foto", "repaso": "Todos los temas (simulacro)", "meta": "60 minutos con reloj, sin apuntes. Anotar el puntaje en la hoja Simulacros."}, {"f": "2026-11-23", "ej": "Todos", "tema": "Corrección y explicar en voz alta", "repaso": "Todos los temas (simulacro)", "meta": "Corregir y explicar en voz alta un ejercicio de cada tipo."}, {"f": "2026-11-24", "ej": "Todos", "tema": "Simulacro 3: tu último final", "repaso": "Área entre dos curvas", "meta": "En la página (Simulacros, S3): 60 minutos con reloj, después cargá tus resultados y mirá la resolución. En este simulacro el Ej. 5 son puntos críticos y el Ej. 6, el área entre la curva y su tangente."}, {"f": "2026-11-25", "ej": "Extra", "tema": "Puntos críticos, crecimiento y extremos", "repaso": "Intersecciones con cúbicas", "meta": "Clases 7 y 8: puntos críticos, intervalos de crecimiento con tabla de signos, máximos y mínimos. 8 ejercicios."}, {"f": "2026-11-26", "ej": "Todos", "tema": "Simulacro 4", "repaso": "Puntos críticos, crecimiento y extremos", "meta": "60 minutos con reloj. Corrección y registro de errores."}, {"f": "2026-11-27", "ej": "Extra", "tema": "Concavidad, inflexión y estudio completo de una función", "repaso": "—", "meta": "Clase 9: segunda derivada, concavidad y puntos de inflexión. 2 estudios completos de función, verificando el gráfico en GeoGebra."}, {"f": "2026-11-28", "ej": "Todos", "tema": "Simulacro 5", "repaso": "Puntos críticos, crecimiento y extremos · Concavidad, inflexión y estudio completo de una función", "meta": "60 minutos con reloj. Corrección y registro de errores."}, {"f": "2026-11-29", "ej": "Todos", "tema": "Simulacro 6", "repaso": "Todos los temas (simulacro)", "meta": "60 minutos con reloj. Corrección y registro de errores."}, {"f": "2026-11-30", "ej": "Todos", "tema": "Cuaderno de errores y puntos flojos", "repaso": "Concavidad, inflexión y estudio completo de una función", "meta": "Rehacer los ejercicios donde te equivocaste y practicar los ejercicios con menos puntaje en los simulacros."}, {"f": "2026-12-01", "ej": "Todos", "tema": "Repaso liviano y descanso", "repaso": "Todos los temas (simulacro)", "meta": "Repasar la tabla de derivadas e integrales y los pasos de cada método. Dormir bien."}, {"f": "2026-12-02", "ej": "—", "tema": "EXAMEN FINAL", "repaso": "—", "meta": "¡A rendir! Empezar por los ejercicios más seguros y justificar cada paso."}];
+function isoHoy() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function temasEn(texto) { const tl = texto.toLowerCase(); return TEMAS.filter(t => tl.includes(t.titulo.toLowerCase()) || (t.alias && tl.includes(t.alias)) || (t.grupo === "base" && tl.includes("base " + t.num))); }
+function irATema(id) { actual = id; try { localStorage.setItem(LS_KEY + "-tema", actual); } catch (e) {} render(); document.getElementById("tema").scrollIntoView({ block: "start", behavior: "smooth" }); }
+function botonTema(t, gris) { return `<button class="ir ${temaHecho(t.id) ? "done" : gris ? "gris" : ""}" data-ir="${t.id}">${temaHecho(t.id) ? "✓ " : ""}${t.grupo === "base" ? "Base " : t.grupo === "simulacro" ? "" : "Tema "}${t.num} · ${t.titulo}</button>`; }
+function renderHoy() {
+  const el = document.getElementById("hoy");
+  const hoy = isoHoy();
+  let fila = PLAN.find(p => p.f === hoy);
+  let titulo = "Hoy";
+  if (!fila && PLAN.length && hoy < PLAN[0].f) { fila = PLAN[0]; titulo = "Primer día del plan"; }
+  if (!fila) { el.innerHTML = `<h2>El plan terminó</h2><p class="meta">¡Suerte en el final!</p>`; return; }
+  const deHoy = temasEn(fila.tema);
+  const repasos = temasEn(fila.repaso).filter(t => !deHoy.includes(t));
+  const atrasados = TEMAS.filter(t => t.fecha < hoy && CONTENIDO[t.id] && !temaHecho(t.id) && !deHoy.includes(t) && !repasos.includes(t));
+  const idx = PLAN.indexOf(fila), man = PLAN[idx + 1];
+  let h = `<div class="bloque"><span class="eyebrow">${titulo} · ${fechaLarga(fila.f)}${fila.ej && fila.ej !== "—" ? " · " + fila.ej : ""}</span><h2>${fila.tema}</h2><p class="meta">${fila.meta}</p></div>`;
+  if (deHoy.length) h += `<div class="chips">${deHoy.map(t => botonTema(t)).join("")}</div>`;
+  if (repasos.length) h += `<div class="bloque"><span class="eyebrow">Repasar primero (bloque 1)</span><div class="chips">${repasos.map(t => botonTema(t, true)).join("")}</div></div>`;
+  else if (fila.repaso && fila.repaso !== "—") h += `<div class="bloque"><span class="eyebrow">Repasar primero (bloque 1)</span><p>${fila.repaso}</p></div>`;
+  if (atrasados.length) h += `<div class="bloque"><span class="eyebrow">Quedaron pendientes de días anteriores</span><div class="chips">${atrasados.map(t => botonTema(t, true)).join("")}</div></div>`;
+  if (man) h += `<p class="meta"><b>Mañana:</b> ${man.tema}</p>`;
+  el.innerHTML = h;
+  el.querySelectorAll("[data-ir]").forEach(b => b.onclick = () => irATema(b.dataset.ir));
+}
+
+// ---------------- Cálculo del avance ----------------
+function totalEj(c) { return c.grupos.reduce((n, g) => n + g.items.length, 0); }
+function okEj(c, s) { return c.grupos.reduce((n, g) => n + g.items.filter(i => s.ej[i.id] === "ok").length, 0); }
+function pasosTema(id) {
+  const c = CONTENIDO[id]; if (!c) return null;
+  const s = st(id);
+  if (c.simulacro) return { resultados: okEj(c, s) === totalEj(c), resolucion: !!s.pasos.resolucion };
+  const ejOk = okEj(c, s) === totalEj(c);
+  const auto = c.puedo.every((_, i) => s.puedo[i]) && c.explicar.every(e => s.explicar[e.id]);
+  return { sintesis: !!s.pasos.sintesis, concepto: !!s.pasos.concepto, ejemplos: !!s.pasos.ejemplos, ejercicios: ejOk, autoeval: auto };
+}
+function temaHecho(id) { const p = pasosTema(id); return !!p && Object.values(p).every(Boolean); }
+function temaEmpezado(id) { const p = pasosTema(id); const s = estado.temas[id]; return !!p && (Object.values(p).some(Boolean) || (s && Object.keys(s.ej || {}).length > 0)); }
+
+// ---------------- Lectura de respuestas ----------------
+function evaluar(txt) {
+  let t = String(txt).toLowerCase().replace(/\s+/g, "").replace(/,/g, ".").replace(/π/g, "pi").replace(/°|º|grados?|rad(ianes)?/g, "").replace(/−/g, "-");
+  if (!t) return null;
+  t = t.replace(/(\d|\))pi/g, "$1*pi").replace(/pi(\d|\()/g, "pi*$1").replace(/(\d)\(/g, "$1*(").replace(/\)(\d|\()/g, ")*$1");
+  if (!/^[0-9+\-*/().pi]+$/.test(t) || /p(?!i)|(?<!p)i/.test(t)) return null;
+  try { const v = Function('"use strict";return (' + t.replace(/pi/g, "Math.PI") + ")")(); return Number.isFinite(v) ? v : null; } catch (e) { return null; }
+}
+
+// ---------------- Render ----------------
+let actual = (() => { try { return localStorage.getItem(LS_KEY + "-tema") || "t00"; } catch (e) { return "t01"; } })();
+if (!TEMAS.some(t => t.id === actual)) actual = "t00";
+
+function render() {
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  document.getElementById("dias").textContent = Math.max(0, Math.round((EXAMEN - hoy) / 86400000));
+  const temasReales = TEMAS.filter(t => t.grupo !== "simulacro");
+  const hechos = temasReales.filter(t => temaHecho(t.id)).length;
+  document.getElementById("hechos").textContent = `${hechos} de ${temasReales.length}`;
+  document.getElementById("barra").style.width = (hechos / temasReales.length * 100) + "%";
+  const lista = document.getElementById("lista-temas");
+  lista.innerHTML = "";
+  TEMAS.forEach((t, i) => {
+    if (i === 0 || TEMAS[i - 1].grupo !== t.grupo) {
+      const hdr = document.createElement("div");
+      hdr.className = "grupo-temas";
+      hdr.textContent = t.grupo === "base" ? "Tema 0 · Bases (Análisis I y secundario)" : t.grupo === "simulacro" ? "Simulacros" : "Temas del examen";
+      lista.appendChild(hdr);
+    }
+    const b = document.createElement("button");
+    b.className = "tema-btn" + (temaHecho(t.id) ? " done" : temaEmpezado(t.id) ? " started" : "") + (CONTENIDO[t.id] ? "" : " lock");
+    b.setAttribute("aria-current", t.id === actual ? "true" : "false");
+    const [, m, d] = t.fecha.split("-").map(Number);
+    b.innerHTML = `<span class="n">${temaHecho(t.id) ? "✓" : t.num}</span><span class="t">${t.titulo}<small>${t.grupo === "base" ? "hacelo antes del " : t.grupo === "simulacro" ? "fecha sugerida " : ""}${d}/${m} · ${t.ej}${CONTENIDO[t.id] ? "" : " · se prepara ese día"}</small></span>`;
+    b.onclick = () => { actual = t.id; try { localStorage.setItem(LS_KEY + "-tema", actual); } catch (e) {} render(); document.getElementById("tema").scrollIntoView({ block: "start", behavior: "smooth" }); };
+    lista.appendChild(b);
+  });
+  renderHoy();
+  renderTema();
+}
+
+function videoCard(v) {
+  return `<a class="video" href="${v.url}" target="_blank" rel="noopener"><span class="canal">${v.canal}</span><b>${v.titulo}</b><span class="datos">${v.datos}</span><span class="tip">${v.nota}</span><span class="play">▶ Ver en YouTube</span></a>`;
+}
+
+function pasoHead(n, titulo, clave, hecho, auto) {
+  const ctrl = auto !== undefined
+    ? `<span class="auto ${hecho ? "on" : ""}">${hecho ? "✓ Completo" : auto}</span>`
+    : `<label class="check ${hecho ? "on" : ""}"><input type="checkbox" id="chk-${clave}" data-paso="${clave}" ${hecho ? "checked" : ""}> ${hecho ? "Hecho" : "Marcar como hecho"}</label>`;
+  return `<div class="paso-head"><div class="izq"><span class="num">${hecho ? "✓" : n}</span><h3>${titulo}</h3></div>${ctrl}</div>`;
+}
+
+function renderTema() {
+  const main = document.getElementById("tema");
+  const t = TEMAS.find(x => x.id === actual);
+  const c = CONTENIDO[actual];
+  const idx = t.num;
+  if (!c) {
+    main.innerHTML = `<div class="tema-head"><div class="metas"><span class="chip">Tema ${idx}</span><span class="chip gray">${t.ej} del examen</span><span class="chip gray">${fechaLarga(t.fecha)}</span></div><h2>${t.titulo}</h2></div>
+      <div class="bloqueado"><h3>Este tema todavía no está preparado</h3><p>Se prepara el ${fechaLarga(t.fecha)}, siguiendo el plan. Cuando llegues a este tema, pedile a Claude: <b>"prepará el tema ${idx} en la página"</b>.</p><p class="tip">Así cada tema llega con su síntesis, sus videos y sus ejercicios.</p></div>`;
+    return;
+  }
+  if (c.simulacro) { renderSimulacro(t, c); return; }
+  const s = st(actual), p = pasosTema(actual);
+  const nEj = totalEj(c), nOk = okEj(c, s);
+  const etiquetas = [["sintesis", "Síntesis"], ["concepto", "Video de concepto"], ["ejemplos", "Video de ejercicios"], ["ejercicios", "Ejercicios"], ["autoeval", "Autoevaluación"]];
+  let h = `<div class="tema-head"><div class="metas"><span class="chip">Tema ${idx}</span><span class="chip gray">${t.ej} del examen</span><span class="chip gray">${fechaLarga(t.fecha)}</span></div>
+    <h2>${t.titulo}</h2>
+    ${c.usaEn ? `<p class="usa"><b>Lo vas a usar en:</b> ${c.usaEn}</p>` : ""}
+    ${c.antes ? `<p class="usa"><b>Antes necesitás:</b> ${c.antes}</p>` : ""}
+    <div class="flujo">${etiquetas.map(([k, l], i) => `<span class="${p[k] ? "ok" : ""}">${p[k] ? "✓" : i + 1 + "."} ${l}</span>`).join("<span>→</span>")}</div>
+    <div><span class="eyebrow">Al terminar vas a poder</span><ul style="margin:6px 0 0;padding-left:20px">${c.objetivos.map(o => `<li>${o}</li>`).join("")}</ul></div></div>`;
+  if (Object.values(p).every(Boolean)) h += `<div class="fin"><b>¡Tema terminado!</b><span>Mañana vuelve a aparecer en tu repaso. Contale a Claude cómo te fue, así lo anota en tu seguimiento.</span></div>`;
+
+  // Paso 1: síntesis
+  h += `<section class="paso ${p.sintesis ? "hecho" : ""}">${pasoHead(1, "Síntesis: qué es, antes de calcular", "sintesis", p.sintesis)}
+    <p class="idea">${c.idea}</p><div class="sint">${c.sintesis}</div>`;
+  if (c.fracciones) h += fraccionesHTML();
+  if (c.figura) h += figuraHTML();
+  if (c.tablaCaract) h += `<h3>Las características de seno y coseno</h3>` + tablaCaractHTML();
+  if (c.datosTabla) h += `<h3>Qué es cada dato y cómo se encuentra</h3><p class="tip">Leé cada tarjeta y después usá el lector de gráfica: elegí seno o coseno y tocá cada dato para verlo marcado.</p>` + c.datosTabla;
+  if (c.lector) h += lectorHTML();
+  if (c.transformador) h += transformadorHTML();
+  h += `<p class="ojo">${c.errores}</p></section>`;
+
+  // Paso 2 y 3: videos
+  h += `<section class="paso ${p.concepto ? "hecho" : ""}">${pasoHead(2, "Video de concepto", "concepto", p.concepto)}
+    <p class="tip">Miralos después de leer la síntesis: hay un video por cada subtema. Pausá cuando algo no te cierre y volvé a la síntesis.</p>
+    <div class="videos">${c.videosConcepto.map(videoCard).join("")}</div></section>`;
+  h += `<section class="paso ${p.ejemplos ? "hecho" : ""}">${pasoHead(3, "Video de ejercicios resueltos", "ejemplos", p.ejemplos)}
+    <p class="tip">Pausá antes de cada paso y tratá de adivinar qué sigue. Si acertás, vas bien; si no, ahí está lo que tenés que mirar.</p>
+    <div class="videos">${c.videosEjercicios.map(videoCard).join("")}</div></section>`;
+
+  // Paso 4: ejercicios
+  h += `<section class="paso ${p.ejercicios ? "hecho" : ""}">${pasoHead(4, "Ejercicios que se corrigen solos", "ejercicios", p.ejercicios, `${nOk} de ${nEj} correctos`)}
+    <p class="tip">Resolvé primero en papel y después escribí el resultado. Si te equivocás, aparece una pista. La solución completa está disponible, pero usala solo después de intentarlo.</p>
+    <p class="ayuda-teclado">Para escribir π podés poner <span class="mono">pi</span>. Ejemplos: <span class="mono">pi/3</span>, <span class="mono">3pi/2</span>, <span class="mono">-0,4161</span>.</p>`;
+  c.grupos.forEach(g => {
+    const okG = g.items.filter(i => s.ej[i.id] === "ok").length;
+    h += `<div class="grupo"><h3>${g.titulo}<small>${okG} de ${g.items.length} · ${g.nota}</small></h3>`;
+    g.items.forEach((it, j) => { h += ejHTML(it, s); });
+    h += `</div>`;
+  });
+  h += `</section>`;
+
+  // Paso 5: autoevaluación
+  h += `<section class="paso ${p.autoeval ? "hecho" : ""}">${pasoHead(5, "Autoevaluación: ¿lo podés explicar?", "autoeval", p.autoeval, "Tildá todo para completar")}
+    <p class="tip">Respondé con honestidad: tildá solo lo que podés hacer <b>sin mirar</b>.</p>
+    <div class="lista">${c.puedo.map((x, i) => `<label><input type="checkbox" id="pu-${actual}-${i}" data-puedo="${i}" ${s.puedo[i] ? "checked" : ""}> <span>${x}</span></label>`).join("")}</div>
+    <h3 style="margin-top:6px">Explicalo con tus palabras</h3>
+    <p class="tip">Escribí o decí en voz alta tu explicación. Después abrí el modelo y comparalo: ¿dijiste lo importante?</p>`;
+  c.explicar.forEach(e => {
+    h += `<div class="explica"><b>${e.q}</b><textarea id="tx-${e.id}" data-texto="${e.id}" placeholder="Tu explicación…">${(s.textos[e.id] || "").replace(/</g, "&lt;")}</textarea>
+      <details><summary class="btn lnk">Ver una explicación modelo</summary><p class="modelo">${e.modelo}</p></details>
+      <label class="check ${s.explicar[e.id] ? "on" : ""}" style="justify-self:start"><input type="checkbox" id="ex-${e.id}" data-explicar="${e.id}" ${s.explicar[e.id] ? "checked" : ""}> Lo pude explicar</label></div>`;
+  });
+  h += `</section>`;
+
+  main.innerHTML = h;
+  conectar(c, s);
+  if (c.figura) iniciarFigura();
+  if (c.fracciones) iniciarFracciones();
+  if (c.lector) iniciarLector();
+  if (c.transformador) iniciarTransformador();
+}
+
+function ejHTML(it, s) {
+  const est = s.ej[it.id];
+  let r = "";
+  if (["num", "frac", "fact", "expr"].includes(it.tipo)) {
+    r = `<div class="ej-r"><input type="text" id="in-${it.id}" inputmode="text" autocomplete="off" aria-label="Respuesta" ${est === "ok" ? "disabled" : ""}>${it.unidad ? `<span>${it.unidad}</span>` : ""}<button class="btn pri" data-comprobar="${it.id}" ${est === "ok" ? "disabled" : ""}>Comprobar</button><button class="btn lnk" data-sol="${it.id}">Ver solución</button></div>`;
+  } else {
+    r = (it.grafico ? `<div class="mini">${miniGrafico(it.grafico)}</div>` : "") + `<div class="opciones" role="radiogroup">${it.ops.map((o, k) => `<label class="opcion"><input type="radio" name="op-${it.id}" id="op-${it.id}-${k}" value="${k}" ${est === "ok" && k === it.ok ? "checked" : ""} ${est === "ok" ? "disabled" : ""}> ${o}</label>`).join("")}</div>
+      <div class="ej-r"><button class="btn pri" data-comprobar="${it.id}" ${est === "ok" ? "disabled" : ""}>Comprobar</button><button class="btn lnk" data-sol="${it.id}">Ver solución</button></div>`;
+  }
+  const fb = est === "ok" ? `<div class="fb bien" id="fb-${it.id}">✓ Correcto</div>` : `<div class="fb" id="fb-${it.id}" hidden></div>`;
+  return `<div class="ej ${est === "ok" ? "ok" : ""}" id="ej-${it.id}"><div class="ej-q"><span class="k">${it.id.toUpperCase()}</span><span>${it.q}</span></div>${r}${fb}<div class="sol" id="sol-${it.id}" hidden>${it.sol.map(x => `<span>${x}</span>`).join("")}</div></div>`;
+}
+
+function buscarItem(c, id) { for (const g of c.grupos) for (const it of g.items) if (it.id === id) return it; }
+
+function conectar(c, s) {
+  const main = document.getElementById("tema");
+  main.querySelectorAll("[data-paso]").forEach(el => el.onchange = () => { s.pasos[el.dataset.paso] = el.checked; guardar(); render(); });
+  main.querySelectorAll("[data-puedo]").forEach(el => el.onchange = () => { s.puedo[el.dataset.puedo] = el.checked; guardar(); render(); });
+  main.querySelectorAll("[data-explicar]").forEach(el => el.onchange = () => { s.explicar[el.dataset.explicar] = el.checked; guardar(); render(); });
+  main.querySelectorAll("[data-texto]").forEach(el => { let tt; el.oninput = () => { clearTimeout(tt); tt = setTimeout(() => { s.textos[el.dataset.texto] = el.value.slice(0, 2000); guardar(); }, 800); }; });
+  main.querySelectorAll("[data-sol]").forEach(el => el.onclick = () => { const b = document.getElementById("sol-" + el.dataset.sol); b.hidden = !b.hidden; el.textContent = b.hidden ? "Ver solución" : "Ocultar solución"; });
+  main.querySelectorAll("[data-comprobar]").forEach(el => el.onclick = () => comprobar(c, s, el.dataset.comprobar));
+  main.querySelectorAll(".ej-r input[type=text]").forEach(el => el.onkeydown = e => { if (e.key === "Enter") comprobar(c, s, el.id.slice(3)); });
+}
+
+function comprobar(c, s, id) {
+  const it = buscarItem(c, id);
+  const fb = document.getElementById("fb-" + id);
+  let bien = false, extra = "";
+  if (it.tipo === "frac") {
+    const raw = document.getElementById("in-" + id).value;
+    const m = raw.replace(/\s/g, "").replace(/−/g, "-").match(/^(-?\d+)\/(\d+)$/);
+    fb.hidden = false;
+    if (!m) { fb.className = "fb mal"; fb.textContent = "Escribilo como fracción: numerador/denominador, por ejemplo 2/5."; return; }
+    const a = Number(m[1]), b = Number(m[2]);
+    if (b === 0 || a * it.v[1] !== b * it.v[0]) { if (s.ej[id] !== "ok") s.ej[id] = "fallo"; guardar(); fb.className = "fb mal"; fb.innerHTML = "Esa fracción no vale lo mismo que la original. <b>Pista:</b> " + it.pista; return; }
+    if (mcd(Math.abs(a), b) !== 1) { fb.className = "fb mal"; fb.innerHTML = `Vale lo mismo, pero todavía se puede simplificar: ${a} y ${b} se pueden dividir los dos por ${mcd(Math.abs(a), b)}.`; return; }
+    bien = true;
+  } else if (it.tipo === "fact") {
+    const raw = document.getElementById("in-" + id).value;
+    const t = raw.replace(/\s/g, "").replace(/[·x×.]/g, "*");
+    fb.hidden = false;
+    if (!/^\d+(\^\d+)?(\*\d+(\^\d+)?)*$/.test(t)) { fb.className = "fb mal"; fb.textContent = "Escribilo como multiplicación, por ejemplo 2·2·3 o 2*2*3."; return; }
+    const fs = []; t.split("*").forEach(p => { const [b, e] = p.split("^").map(Number); for (let i = 0; i < (e || 1); i++) fs.push(b); });
+    const prod = fs.reduce((x, y) => x * y, 1);
+    const noPrimo = fs.find(f => !esPrimo(f));
+    if (prod !== it.n) { if (s.ej[id] !== "ok") s.ej[id] = "fallo"; guardar(); fb.className = "fb mal"; fb.innerHTML = `Esa multiplicación da ${prod}, no ${it.n}. <b>Pista:</b> ${it.pista}`; return; }
+    if (noPrimo !== undefined) { fb.className = "fb mal"; fb.innerHTML = `La multiplicación da ${it.n}, pero el ${noPrimo} no es primo: todavía se puede dividir. Seguí factorizándolo.`; return; }
+    bien = true;
+  } else if (it.tipo === "expr") {
+    const raw = document.getElementById("in-" + id).value;
+    fb.hidden = false;
+    const fn = compilarExpr(raw);
+    if (!fn) { fb.className = "fb mal"; fb.textContent = "No pude leer esa expresión. Usá x, números, + − * / y ^ para los exponentes. Ejemplo: 3x^2 - 15x"; return; }
+    const pts = [-2.3, -1.1, 0.4, 1.7, 2.9];
+    const k0 = it.salvoConstante ? fn(pts[0]) - it.f(pts[0]) : 0;
+    const igual = pts.every(p => { const a = fn(p) - k0, b = it.f(p); return Number.isFinite(a) && Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(b)); });
+    if (!igual) { if (s.ej[id] !== "ok") s.ej[id] = "fallo"; guardar(); fb.className = "fb mal"; fb.innerHTML = "Esa expresión no es equivalente. <b>Pista:</b> " + it.pista; return; }
+    if (it.sinParentesis && /[()]/.test(raw)) { fb.className = "fb mal"; fb.textContent = "Es equivalente, pero todavía tiene paréntesis: desarrollalo hasta que no quede ninguno."; return; }
+    if (it.conParentesis && !/[()]/.test(raw)) { fb.className = "fb mal"; fb.textContent = "Es equivalente, pero la idea es escribirlo factorizado, como una multiplicación con paréntesis."; return; }
+    bien = true;
+  } else if (it.tipo === "num") {
+    const raw = document.getElementById("in-" + id).value;
+    const v = evaluar(raw);
+    if (v === null) { fb.hidden = false; fb.className = "fb mal"; fb.textContent = "No pude leer esa respuesta. Escribí un número o una expresión con pi, por ejemplo 2pi/3."; return; }
+    bien = [it.v, ...(it.alt || [])].some(w => Math.abs(v - w) <= (it.tol || 1e-6 * Math.max(1, Math.abs(w))));
+    if (bien && it.conPi && !/pi|π/i.test(raw)) extra = " En el examen escribilo exacto, con π.";
+  } else {
+    const sel = document.querySelector(`input[name="op-${id}"]:checked`);
+    if (!sel) { fb.hidden = false; fb.className = "fb mal"; fb.textContent = "Elegí una opción."; return; }
+    bien = Number(sel.value) === it.ok;
+  }
+  fb.hidden = false;
+  if (bien) {
+    s.ej[id] = "ok"; guardar();
+    fb.className = "fb bien"; fb.textContent = "✓ Correcto." + extra;
+    setTimeout(render, 900);
+  } else {
+    if (s.ej[id] !== "ok") s.ej[id] = "fallo"; guardar();
+    fb.className = "fb mal"; fb.innerHTML = "Todavía no. <b>Pista:</b> " + it.pista;
+  }
+}
+
+// ---------------- Tabla de características ----------------
+function tablaCaractHTML() {
+  return `<div class="tabla-wrap"><table>
+    <thead><tr><th></th><th class="c-sen">y = sen x</th><th class="c-cos">y = cos x</th></tr></thead>
+    <tbody>
+      <tr><td>Dominio</td><td class="m">ℝ</td><td class="m">ℝ</td></tr>
+      <tr><td>Imagen</td><td class="m">[−1, 1]</td><td class="m">[−1, 1]</td></tr>
+      <tr><td>Período</td><td class="m">2π</td><td class="m">2π</td></tr>
+      <tr><td>Amplitud</td><td class="m">1</td><td class="m">1</td></tr>
+      <tr><td>Ceros</td><td class="m">x = kπ</td><td class="m">x = π/2 + kπ</td></tr>
+      <tr><td>Máximo (vale 1)</td><td class="m">x = π/2 + 2kπ</td><td class="m">x = 2kπ</td></tr>
+      <tr><td>Mínimo (vale −1)</td><td class="m">x = 3π/2 + 2kπ</td><td class="m">x = π + 2kπ</td></tr>
+    </tbody></table></div>
+    <div class="tabla-wrap"><table>
+    <thead><tr><th>x</th><th>0</th><th>π/2</th><th>π</th><th>3π/2</th><th>2π</th></tr></thead>
+    <tbody>
+      <tr><td>en grados</td><td class="m">0°</td><td class="m">90°</td><td class="m">180°</td><td class="m">270°</td><td class="m">360°</td></tr>
+      <tr><td class="c-sen">sen x</td><td class="m">0</td><td class="m">1</td><td class="m">0</td><td class="m">−1</td><td class="m">0</td></tr>
+      <tr><td class="c-cos">cos x</td><td class="m">1</td><td class="m">0</td><td class="m">−1</td><td class="m">0</td><td class="m">1</td></tr>
+    </tbody></table></div>
+    <p class="tip">k es cualquier número entero (…, −2, −1, 0, 1, 2, …): los ceros, máximos y mínimos se repiten cada período.</p>`;
+}
+
+// ---------------- Figura interactiva ----------------
+function figuraHTML() {
+  return `<div class="fig" aria-label="Figura interactiva: circunferencia trigonométrica y gráficas de seno y coseno">
+    <svg id="fig-svg" viewBox="0 0 660 270" role="img" aria-label="Circunferencia trigonométrica con el punto P y las gráficas de seno y coseno"></svg>
+    <div class="fig-ctrl"><label for="ang" class="eyebrow">Ángulo x</label><input type="range" id="ang" min="0" max="360" step="5" value="60"><button class="btn" id="anim">▶ Animar</button></div>
+    <div class="fig-ctrl"><label class="opcion" style="padding:4px 10px"><input type="checkbox" id="ver-sen" checked> <span class="c-sen">mostrar seno</span></label><label class="opcion" style="padding:4px 10px"><input type="checkbox" id="ver-cos" checked> <span class="c-cos">mostrar coseno</span></label></div>
+    <div class="lectura" id="lectura"></div>
+  </div>`;
+}
+function fracPi(deg) {
+  if (deg === 0) return "0";
+  for (const d of [1, 2, 3, 4, 6, 12, 36]) { const n = deg * d / 180; if (Math.abs(n - Math.round(n)) < 1e-9) { const nn = Math.round(n); const num = nn === 1 ? "π" : nn + "π"; return d === 1 ? num : num + "/" + d; } }
+  return (deg * Math.PI / 180).toFixed(3);
+}
+function fmt(v) { const r = Math.abs(v) < 5e-4 ? 0 : v; return r.toFixed(3).replace(".", ",").replace("-", "−"); }
+let animando = null;
+function iniciarFigura() {
+  const svg = document.getElementById("fig-svg"), ang = document.getElementById("ang");
+  const vs = document.getElementById("ver-sen"), vc = document.getElementById("ver-cos");
+  const cx = 125, cy = 135, R = 95, x0 = 270, W = 370;
+  const css = getComputedStyle(document.documentElement);
+  const col = n => css.getPropertyValue(n).trim();
+  function curva(f) { let d = ""; for (let i = 0; i <= 120; i++) { const t = i / 120 * 2 * Math.PI; d += (i ? "L" : "M") + (x0 + t / (2 * Math.PI) * W).toFixed(1) + " " + (cy - R * f(t)).toFixed(1); } return d; }
+  function dibujar() {
+    const deg = Number(ang.value), t = deg * Math.PI / 180, s = Math.sin(t), c = Math.cos(t);
+    const px = cx + R * c, py = cy - R * s, gx = x0 + t / (2 * Math.PI) * W;
+    const ink = col("--ink"), muted = col("--muted"), line = col("--line"), acc = col("--accent"), cos = col("--cos"), surf = col("--surface");
+    let g = "";
+    // ejes
+    g += `<line x1="${cx - R - 15}" y1="${cy}" x2="${cx + R + 15}" y2="${cy}" stroke="${line}"/><line x1="${cx}" y1="${cy - R - 15}" x2="${cx}" y2="${cy + R + 15}" stroke="${line}"/>`;
+    g += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${muted}" stroke-width="1.5"/>`;
+    g += `<line x1="${x0}" y1="${cy}" x2="${x0 + W + 10}" y2="${cy}" stroke="${line}"/><line x1="${x0}" y1="${cy - R - 12}" x2="${x0}" y2="${cy + R + 12}" stroke="${line}"/>`;
+    [[0, "0"], [0.25, "π/2"], [0.5, "π"], [0.75, "3π/2"], [1, "2π"]].forEach(([k, l]) => { const xx = x0 + k * W; g += `<line x1="${xx}" y1="${cy - 4}" x2="${xx}" y2="${cy + 4}" stroke="${muted}"/><text x="${xx}" y="${cy + 20}" fill="${muted}" font-size="12" text-anchor="middle" font-family="JetBrains Mono, monospace">${l}</text>`; });
+    [[1, "1"], [-1, "−1"]].forEach(([k, l]) => { const yy = cy - k * R; g += `<line x1="${x0 - 4}" y1="${yy}" x2="${x0 + 4}" y2="${yy}" stroke="${muted}"/><text x="${x0 - 8}" y="${yy + 4}" fill="${muted}" font-size="12" text-anchor="end" font-family="JetBrains Mono, monospace">${l}</text>`; });
+    // arco del ángulo
+    if (deg > 0) { const large = deg > 180 ? 1 : 0; const r2 = 26; g += `<path d="M ${cx + r2} ${cy} A ${r2} ${r2} 0 ${large} 0 ${cx + r2 * c} ${cy - r2 * s}" fill="none" stroke="${ink}" stroke-width="1.5"/>`; g += `<path d="M ${cx + R} ${cy} A ${R} ${R} 0 ${large} 0 ${px} ${py}" fill="none" stroke="${ink}" stroke-width="3" opacity=".35"/>`; }
+    g += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="${ink}" stroke-width="1.5"/>`;
+    if (vc.checked) { g += `<path d="${curva(Math.cos)}" fill="none" stroke="${cos}" stroke-width="2.5"/>`; g += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${cy}" stroke="${cos}" stroke-width="4" stroke-linecap="round"/>`; g += `<circle cx="${gx}" cy="${cy - R * c}" r="5" fill="${cos}" stroke="${surf}" stroke-width="2"/>`; }
+    if (vs.checked) { g += `<path d="${curva(Math.sin)}" fill="none" stroke="${acc}" stroke-width="2.5"/>`; g += `<line x1="${px}" y1="${cy}" x2="${px}" y2="${py}" stroke="${acc}" stroke-width="4" stroke-linecap="round"/>`; g += `<line x1="${px}" y1="${py}" x2="${gx}" y2="${py}" stroke="${acc}" stroke-dasharray="4 4" opacity=".7"/>`; g += `<circle cx="${gx}" cy="${py}" r="5" fill="${acc}" stroke="${surf}" stroke-width="2"/>`; }
+    g += `<circle cx="${px}" cy="${py}" r="6" fill="${ink}" stroke="${surf}" stroke-width="2"/><text x="${px + (c >= 0 ? 10 : -10)}" y="${py + (s >= 0 ? -10 : 18)}" fill="${ink}" font-size="14" font-weight="700" text-anchor="${c >= 0 ? "start" : "end"}" font-family="Atkinson Hyperlegible, sans-serif">P</text>`;
+    g += `<text x="${cx}" y="18" fill="${muted}" font-size="12" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">Circunferencia de radio 1</text><text x="${x0 + W / 2}" y="18" fill="${muted}" font-size="12" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">Gráfica de x entre 0 y 2π</text>`;
+    svg.innerHTML = g;
+    document.getElementById("lectura").innerHTML = `<span>x = ${deg}° = <b>${fracPi(deg)}</b> rad</span><span class="c-sen">sen x = ${fmt(s)}</span><span class="c-cos">cos x = ${fmt(c)}</span><span>P = (${fmt(c)}; ${fmt(s)})</span>`;
+  }
+  ang.oninput = dibujar; vs.onchange = dibujar; vc.onchange = dibujar;
+  const btn = document.getElementById("anim");
+  btn.onclick = () => {
+    if (animando) { clearInterval(animando); animando = null; btn.textContent = "▶ Animar"; return; }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { ang.value = (Number(ang.value) + 30) % 365; dibujar(); return; }
+    btn.textContent = "❚❚ Pausar";
+    animando = setInterval(() => { let v = Number(ang.value) + 5; if (v > 360) v = 0; ang.value = v; dibujar(); }, 120);
+  };
+  if (animando) { clearInterval(animando); animando = null; }
+  dibujar();
+}
+function miniGrafico(tipo) {
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const sp = typeof tipo === "object" ? tipo : { f: tipo, A: 1, B: 1, C: 0, D: 0 };
+  const base = sp.f === "cos" ? Math.cos : Math.sin;
+  const amp = Math.abs(sp.A) + Math.abs(sp.D);
+  const f = t => (sp.A * base(sp.B * t + sp.C) + sp.D) / amp;
+  const x0 = 40, W = 300, cy = 80, R = 55;
+  const etq = n => String(Math.round(n * 100) / 100).replace(".", ",");
+  let d = ""; for (let i = 0; i <= 100; i++) { const t = i / 100 * 2 * Math.PI; d += (i ? "L" : "M") + (x0 + t / (2 * Math.PI) * W).toFixed(1) + " " + (cy - R * f(t)).toFixed(1); }
+  let g = `<svg viewBox="0 0 360 160" role="img" aria-label="Gráfica de una función trigonométrica entre 0 y 2π"><line x1="${x0}" y1="${cy}" x2="${x0 + W + 10}" y2="${cy}" stroke="${col("--line")}"/><line x1="${x0}" y1="${cy - R - 10}" x2="${x0}" y2="${cy + R + 10}" stroke="${col("--line")}"/>`;
+  [[0, "0"], [0.25, "π/2"], [0.5, "π"], [0.75, "3π/2"], [1, "2π"]].forEach(([k, l]) => { const xx = x0 + k * W; g += `<text x="${xx}" y="${cy + R + 22}" fill="${col("--muted")}" font-size="11" text-anchor="middle" font-family="JetBrains Mono, monospace">${l}</text><line x1="${xx}" y1="${cy - 3}" x2="${xx}" y2="${cy + 3}" stroke="${col("--muted")}"/>`; });
+  g += `<text x="${x0 - 6}" y="${cy - R + 4}" fill="${col("--muted")}" font-size="11" text-anchor="end" font-family="JetBrains Mono, monospace">${etq(amp)}</text><text x="${x0 - 6}" y="${cy + R + 4}" fill="${col("--muted")}" font-size="11" text-anchor="end" font-family="JetBrains Mono, monospace">−${etq(amp)}</text><line x1="${x0 - 3}" y1="${cy - R}" x2="${x0 + 3}" y2="${cy - R}" stroke="${col("--muted")}"/><line x1="${x0 - 3}" y1="${cy + R}" x2="${x0 + 3}" y2="${cy + R}" stroke="${col("--muted")}"/>`;
+  g += `<path d="${d}" fill="none" stroke="${col("--ink")}" stroke-width="2.5"/></svg>`;
+  return g;
+}
+
+
+
+// ---------------- Simulacros ----------------
+let reloj = { restante: 3600, corriendo: null };
+function fmtReloj(seg) { const m = Math.floor(seg / 60), s = seg % 60; return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"); }
+function renderSimulacro(t, c) {
+  const main = document.getElementById("tema");
+  const s = st(t.id), p = pasosTema(t.id);
+  const nEj = totalEj(c), nOk = okEj(c, s), total = c.ejercicios.reduce((a, e) => a + e.pts, 0);
+  let h = `<div class="tema-head"><div class="metas"><span class="chip">Simulacro</span><span class="chip gray">60 minutos · ${String(total).replace(".", ",")} puntos · se aprueba con 6</span><span class="chip gray">fecha sugerida: ${fechaLarga(t.fecha)}</span></div>
+    <h2>${t.titulo}</h2><p class="usa">${c.origen}</p><p class="tip">${c.instrucciones}</p></div>`;
+  h += `<section class="paso"><div class="paso-head"><div class="izq"><span class="num">1</span><h3>Reloj</h3></div></div>
+    <div class="reloj"><span class="mono" id="reloj-t">${fmtReloj(reloj.restante)}</span><div class="btns"><button class="btn pri" id="reloj-go">${reloj.corriendo ? "Pausar" : "Empezar"}</button><button class="btn" id="reloj-reset">Reiniciar</button></div></div>
+    <p class="tip">Unos 10 minutos por ejercicio. Empezá por los que te salen más seguros.</p></section>`;
+  h += `<section class="paso"><div class="paso-head"><div class="izq"><span class="num">2</span><h3>Enunciados</h3></div></div>
+    <ol class="enunciados">${c.ejercicios.map(e => `<li><b>Ejercicio ${e.n}</b> <span class="chip gray">${String(e.pts).replace(".", ",")} p</span><p>${e.enunciado}</p></li>`).join("")}</ol></section>`;
+  h += `<section class="paso ${p.resultados ? "hecho" : ""}"><div class="paso-head"><div class="izq"><span class="num">${p.resultados ? "✓" : 3}</span><h3>Corregí tus resultados</h3></div><span class="auto ${p.resultados ? "on" : ""}">${p.resultados ? "✓ Todo correcto" : nOk + " de " + nEj + " correctos"}</span></div>
+    <p class="tip">Cargalos recién cuando termines en papel.</p>`;
+  c.grupos.forEach(g => { h += `<div class="grupo"><h3>${g.titulo}<small>${g.nota}</small></h3>${g.items.map(it => ejHTML(it, s)).join("")}</div>`; });
+  h += `</section>`;
+  h += `<section class="paso ${p.resolucion ? "hecho" : ""}"><div class="paso-head"><div class="izq"><span class="num">${p.resolucion ? "✓" : 4}</span><h3>Resolución paso a paso</h3></div>
+    <label class="check ${p.resolucion ? "on" : ""}"><input type="checkbox" id="chk-resolucion" data-paso="resolucion" ${p.resolucion ? "checked" : ""}> ${p.resolucion ? "Revisada" : "Marcar como revisada"}</label></div>
+    ${c.ejercicios.map(e => `<details class="resol"><summary><b>Ejercicio ${e.n}</b> · ${e.enunciado.replace(/<[^>]+>/g, "")}</summary><div class="sint">${e.res}</div></details>`).join("")}</section>`;
+  main.innerHTML = h;
+  conectar(c, s);
+  const t1 = document.getElementById("reloj-t"), go = document.getElementById("reloj-go");
+  go.onclick = () => {
+    if (reloj.corriendo) { clearInterval(reloj.corriendo); reloj.corriendo = null; go.textContent = "Seguir"; return; }
+    go.textContent = "Pausar";
+    reloj.corriendo = setInterval(() => { reloj.restante = Math.max(0, reloj.restante - 1); const el = document.getElementById("reloj-t"); if (el) el.textContent = fmtReloj(reloj.restante); if (!reloj.restante) { clearInterval(reloj.corriendo); reloj.corriendo = null; if (el) el.textContent = "¡Tiempo!"; } }, 1000);
+  };
+  document.getElementById("reloj-reset").onclick = () => { if (reloj.corriendo) clearInterval(reloj.corriendo); reloj = { restante: 3600, corriendo: null }; t1.textContent = fmtReloj(3600); go.textContent = "Empezar"; };
+}
+
+// ---------------- Lector de expresiones con x ----------------
+function compilarExpr(txt) {
+  const t = String(txt).toLowerCase().replace(/\s+/g, "").replace(/,/g, ".").replace(/−/g, "-").replace(/[·×]/g, "*").replace(/π/g, "pi").replace(/²/g, "^2").replace(/³/g, "^3").replace(/^y=/, "");
+  if (!t) return null;
+  const toks = []; let i = 0;
+  while (i < t.length) {
+    const c = t[i];
+    if (/[0-9.]/.test(c)) { let j = i; while (j < t.length && /[0-9.]/.test(t[j])) j++; const v = Number(t.slice(i, j)); if (!Number.isFinite(v)) return null; toks.push({ k: "n", v }); i = j; }
+    else if (t.startsWith("pi", i)) { toks.push({ k: "n", v: Math.PI }); i += 2; }
+    else if (c === "e") { toks.push({ k: "n", v: Math.E }); i++; }
+    else if (c === "x") { toks.push({ k: "x" }); i++; }
+    else if ("+-*/^()".includes(c)) { toks.push({ k: c }); i++; }
+    else return null;
+  }
+  let p = 0;
+  const ver = () => toks[p], com = k => (toks[p] && toks[p].k === k) ? (p++, true) : false;
+  const empiezaAtomo = () => toks[p] && (toks[p].k === "n" || toks[p].k === "x" || toks[p].k === "(");
+  function expr() { let a = term(); for (;;) { if (com("+")) { const l = a, r = term(); a = x => l(x) + r(x); } else if (com("-")) { const l = a, r = term(); a = x => l(x) - r(x); } else return a; } }
+  function term() { let a = unario(); for (;;) { if (com("*")) { const l = a, r = unario(); a = x => l(x) * r(x); } else if (com("/")) { const l = a, r = unario(); a = x => l(x) / r(x); } else if (empiezaAtomo()) { const l = a, r = potencia(); a = x => l(x) * r(x); } else return a; } }
+  function unario() { if (com("-")) { const a = unario(); return x => -a(x); } if (com("+")) return unario(); return potencia(); }
+  function potencia() { const b = atomo(); if (com("^")) { const e = unario(); return x => Math.pow(b(x), e(x)); } return b; }
+  function atomo() { const tk = ver(); if (!tk) throw 0; if (tk.k === "n") { p++; const v = tk.v; return () => v; } if (tk.k === "x") { p++; return x => x; } if (com("(")) { const a = expr(); if (!com(")")) throw 0; return a; } throw 0; }
+  try { const f = expr(); if (p !== toks.length) return null; return f; } catch (e) { return null; }
+}
+
+// ---------------- Factorización y fracciones ----------------
+function mcd(a, b) { while (b) [a, b] = [b, a % b]; return a; }
+function esPrimo(n) { if (n < 2) return false; for (let d = 2; d * d <= n; d++) if (n % d === 0) return false; return true; }
+function factores(n) { const f = []; let d = 2; while (n > 1 && d * d <= n) { while (n % d === 0) { f.push(d); n /= d; } d++; } if (n > 1) f.push(n); return f; }
+function escaleraHTML(n) {
+  let filas = "", x = n;
+  for (const p of factores(n)) { filas += `<span>${x}</span><span>${p}</span>`; x /= p; }
+  filas += `<span>1</span><span></span>`;
+  return `<div class="escalera" aria-label="Factorización de ${n}">${filas}</div>`;
+}
+function fraccionesHTML() {
+  return `<div class="fig" aria-label="Calculadora de factorización">
+    <h3>Probá con tus números</h3>
+    <p class="tip">Usala para ver el procedimiento o para controlar lo que hiciste en papel. Primero hacelo vos.</p>
+    <div class="fr-cols">
+      <div class="fr-col"><span class="eyebrow">Factorizar (la escalera)</span>
+        <div class="ej-r"><label for="fz-n" class="tip">Número</label><input type="text" id="fz-n" value="180" inputmode="numeric" autocomplete="off"></div>
+        <div id="fz-out"></div></div>
+      <div class="fr-col"><span class="eyebrow">Simplificar una fracción</span>
+        <div class="ej-r"><input type="text" id="sm-a" value="60" inputmode="numeric" aria-label="Numerador" autocomplete="off"><span>/</span><input type="text" id="sm-b" value="180" inputmode="numeric" aria-label="Denominador" autocomplete="off"></div>
+        <div id="sm-out" class="sol" style="border-color:var(--accent)"></div></div>
+    </div></div>`;
+}
+function iniciarFracciones() {
+  const fz = document.getElementById("fz-n"), a = document.getElementById("sm-a"), b = document.getElementById("sm-b");
+  function leer(el) { const v = Number(String(el.value).trim()); return Number.isInteger(v) && v >= 1 && v <= 1000000 ? v : null; }
+  function dFz() {
+    const n = leer(fz), out = document.getElementById("fz-out");
+    if (!n || n < 2) { out.innerHTML = `<p class="tip">Escribí un número entero entre 2 y 1.000.000.</p>`; return; }
+    const f = factores(n);
+    out.innerHTML = escaleraHTML(n) + `<p class="mono" style="margin-top:8px">${n} = ${f.join("·")}${esPrimo(n) ? " (es primo)" : ""}</p>`;
+  }
+  function dSm() {
+    const x = leer(a), y = leer(b), out = document.getElementById("sm-out");
+    if (!x || !y) { out.innerHTML = `<span class="tip">Escribí dos números enteros positivos.</span>`; return; }
+    const fa = factores(x), fb = factores(y), resto = [...fb], tachA = [];
+    for (const p of fa) { const k = resto.indexOf(p); if (k >= 0) { tachA.push(true); resto.splice(k, 1); } else tachA.push(false); }
+    const usados = [...fb]; const tachB = fb.map(() => false);
+    fa.forEach((p, i) => { if (tachA[i]) { const k = usados.findIndex((q, j) => q === p && !tachB[j]); tachB[k] = true; } });
+    const g = mcd(x, y);
+    const fmtF = (fs, t) => fs.length ? fs.map((p, i) => t[i] ? `<s>${p}</s>` : p).join("·") : "1";
+    out.innerHTML = `<span>${x} = ${fa.length ? fa.join("·") : "1"}</span><span>${y} = ${fb.length ? fb.join("·") : "1"}</span>
+      <span>Tachás los que se repiten: (${fmtF(fa, tachA)}) / (${fmtF(fb, tachB)})</span>
+      <span>Resultado: <b>${x / g}/${y / g}</b>${g === 1 ? " (ya no se podía simplificar)" : ` (dividiste arriba y abajo por ${g})`}</span>`;
+  }
+  fz.oninput = dFz; a.oninput = dSm; b.oninput = dSm;
+  dFz(); dSm();
+}
+
+
+// ---------------- Transformador A·sen(Bx + C) + D ----------------
+function fmtPi(v) {
+  if (Math.abs(v) < 1e-9) return "0";
+  const q = v / Math.PI;
+  for (let d = 1; d <= 16; d++) { const n = q * d; if (Math.abs(n - Math.round(n)) < 1e-6) { const nn = Math.round(n); const s = nn < 0 ? "−" : ""; const a = Math.abs(nn); return s + (a === 1 ? "π" : a + "π") + (d === 1 ? "" : "/" + d); } }
+  return String(Math.round(v * 1000) / 1000).replace(".", ",").replace("-", "−");
+}
+function fmtNum(v) { const r = Math.round(v * 100) / 100; return (Number.isInteger(r * 2) && !Number.isInteger(r) ? (r < 0 ? "−" : "") + Math.abs(r * 2) + "/2" : String(r)).replace(".", ",").replace("-", "−"); }
+function transformadorHTML() {
+  const sl = (id, lbl, min, max, step, val) => `<div class="tr-sl"><label for="${id}"><b>${lbl}</b> = <span class="mono" id="${id}-v"></span></label><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+  return `<div class="fig" aria-label="Transformador de seno y coseno">
+    <h3>Transformador: mové A, B, C y D</h3>
+    <p class="tip">La línea punteada es la función básica; la de color, la transformada. Probá también los dos ejercicios de los finales.</p>
+    <div class="fig-ctrl"><div class="btns" role="group" aria-label="Función"><button class="btn" id="tf-sen" aria-pressed="true">sen</button><button class="btn" id="tf-cos" aria-pressed="false">cos</button></div>
+      <div class="btns"><button class="btn" id="tf-f2">Final 2: −2·cos(π/4 − 2x)</button><button class="btn" id="tf-f1">Final 1: −½·sen(2π − x)</button><button class="btn lnk" id="tf-reset">Volver a la básica</button></div></div>
+    <div class="tr-grid">${sl("tA", "A", -3, 3, 0.5, 1)}${sl("tB", "B", -3, 3, 0.5, 1)}${sl("tC", "C", -16, 16, 1, 0)}${sl("tD", "D", -2, 2, 0.5, 0)}</div>
+    <p class="mono tr-f" id="tf-formula"></p>
+    <svg id="tf-svg" viewBox="0 0 660 260" role="img" aria-label="Gráfica de la función transformada"></svg>
+    <div class="lectura" id="tf-datos"></div>
+  </div>`;
+}
+function iniciarTransformador() {
+  let fn = "sen";
+  const $ = id => document.getElementById(id);
+  const svg = $("tf-svg");
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const P = Math.PI, xmin = -P, xmax = 3 * P, x0 = 46, W = 590, cy = 125, H = 95;
+  function vals() { return { A: Number($("tA").value), B: Number($("tB").value), C: Number($("tC").value) * P / 8, D: Number($("tD").value) }; }
+  function dib() {
+    const { A, B, C, D } = vals();
+    $("tA-v").textContent = fmtNum(A); $("tB-v").textContent = fmtNum(B); $("tC-v").textContent = fmtPi(C); $("tD-v").textContent = fmtNum(D);
+    $("tf-sen").setAttribute("aria-pressed", fn === "sen"); $("tf-cos").setAttribute("aria-pressed", fn === "cos");
+    const base = fn === "sen" ? Math.sin : Math.cos;
+    const signo = (v, txt) => v < 0 ? " − " + txt : " + " + txt;
+    const inner = (B === 1 ? "" : B === -1 ? "−" : fmtNum(B)) + "x" + (C === 0 ? "" : signo(C, fmtPi(Math.abs(C))));
+    $("tf-formula").textContent = "y = " + (A === 1 ? "" : A === -1 ? "−" : fmtNum(A) + "·") + fn + "(" + inner + ")" + (D === 0 ? "" : signo(D, fmtNum(Math.abs(D))));
+    const ymax = Math.max(1.2, Math.abs(A) + Math.abs(D) + 0.3);
+    const X = t => x0 + (t - xmin) / (xmax - xmin) * W, Y = y => cy - y / ymax * H;
+    const ink = col("--ink"), muted = col("--muted"), line = col("--line"), acc = fn === "sen" ? col("--accent") : col("--cos"), soft = col("--accent-soft"), surf = col("--surface");
+    let g = "";
+    if (B !== 0) { const T = 2 * P / Math.abs(B); let a = -C / B; while (a - T >= xmin - 1e-9) a -= T; while (a < xmin - 1e-9) a += T; const b = a + T; if (b <= xmax + 1e-9) g += `<rect x="${X(a)}" y="${Y(ymax)}" width="${X(b) - X(a)}" height="${2 * H}" fill="${soft}"/>`; }
+    g += `<line x1="${x0}" y1="${Y(0)}" x2="${x0 + W}" y2="${Y(0)}" stroke="${line}"/><line x1="${X(0)}" y1="${Y(ymax)}" x2="${X(0)}" y2="${Y(-ymax)}" stroke="${line}"/>`;
+    for (let k = -2; k <= 6; k++) { const t = k * P / 2, xx = X(t); g += `<line x1="${xx}" y1="${Y(0) - 4}" x2="${xx}" y2="${Y(0) + 4}" stroke="${muted}"/><text x="${xx}" y="${Y(-ymax) + 18}" fill="${muted}" font-size="11" text-anchor="middle" font-family="JetBrains Mono, monospace">${fmtPi(t)}</text>`; }
+    [Math.abs(A) + D, D - Math.abs(A)].forEach(v => { if (Math.abs(v) > 1e-9) g += `<line x1="${X(0) - 4}" y1="${Y(v)}" x2="${X(0) + 4}" y2="${Y(v)}" stroke="${muted}"/><text x="${X(0) - 7}" y="${Y(v) + 4}" fill="${muted}" font-size="11" text-anchor="end" font-family="JetBrains Mono, monospace">${fmtNum(v)}</text>`; });
+    let d0 = "", d1 = "";
+    for (let i = 0; i <= 300; i++) { const t = xmin + i / 300 * (xmax - xmin); d0 += (i ? "L" : "M") + X(t).toFixed(1) + " " + Y(base(t)).toFixed(1); d1 += (i ? "L" : "M") + X(t).toFixed(1) + " " + Y(A * base(B * t + C) + D).toFixed(1); }
+    g += `<path d="${d0}" fill="none" stroke="${muted}" stroke-width="1.5" stroke-dasharray="5 5"/><path d="${d1}" fill="none" stroke="${acc}" stroke-width="3"/>`;
+    let datos;
+    if (B === 0) datos = `<span>B no puede ser 0: la función quedaría constante.</span>`;
+    else {
+      const T = 2 * P / Math.abs(B), des = -C / B;
+      if (des >= xmin && des <= xmax) g += `<circle cx="${X(des)}" cy="${Y(A * base(0) + D)}" r="6" fill="${ink}" stroke="${surf}" stroke-width="2"/><text x="${X(des)}" y="${Y(ymax) - 4}" fill="${ink}" font-size="12" font-weight="700" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">empieza el ciclo</text>`;
+      datos = `<span><b>Amplitud</b> |A| = ${fmtNum(Math.abs(A))}</span><span><b>Período</b> 2π/|B| = ${fmtPi(T)}</span><span><b>Desfase</b> −C/B = ${fmtPi(des)}${Math.abs(des) < 1e-9 ? "" : des > 0 ? " (derecha)" : " (izquierda)"}</span><span><b>Imagen</b> [${fmtNum(D - Math.abs(A))}, ${fmtNum(D + Math.abs(A))}]</span>`;
+    }
+    svg.innerHTML = g;
+    $("tf-datos").innerHTML = datos + `<span class="tip">La franja sombreada es un período, desde donde empieza el ciclo.</span>`;
+  }
+  function poner(A, B, Cocts, D, f) { $("tA").value = A; $("tB").value = B; $("tC").value = Cocts; $("tD").value = D; fn = f; dib(); }
+  ["tA", "tB", "tC", "tD"].forEach(id => $(id).oninput = dib);
+  $("tf-sen").onclick = () => { fn = "sen"; dib(); };
+  $("tf-cos").onclick = () => { fn = "cos"; dib(); };
+  $("tf-f2").onclick = () => poner(-2, -2, 2, 0, "cos");
+  $("tf-f1").onclick = () => poner(-0.5, -1, 16, 0, "sen");
+  $("tf-reset").onclick = () => poner(1, 1, 0, 0, fn);
+  dib();
+}
+
+// ---------------- Lector de gráfica ----------------
+const DATOS_LECTOR = {
+  dominio: { l: "Dominio", t: { sen: "La curva sigue para siempre hacia la izquierda y hacia la derecha: se puede poner cualquier x. Dominio = ℝ.", cos: "Igual que el seno: la curva no se corta nunca hacia los costados. Dominio = ℝ." } },
+  imagen: { l: "Imagen", t: { sen: "La franja marcada va desde el punto más bajo (−1) hasta el más alto (1): todos los y que toma la función. Imagen = [−1, 1].", cos: "El coseno también se mueve solo entre −1 y 1. Imagen = [−1, 1]." } },
+  periodo: { l: "Período", t: { sen: "El tramo marcado va de un máximo al siguiente máximo: es el dibujo más corto que se repite. Mide 2π.", cos: "De un máximo (x = 0) al siguiente (x = 2π) hay 2π: ese es el período." } },
+  amplitud: { l: "Amplitud", t: { sen: "La flecha mide cuánto sube la onda desde la línea del medio (y = 0) hasta el máximo: 1. Es (1 − (−1)) / 2 = 1.", cos: "Desde la línea del medio hasta el máximo hay 1: la amplitud es 1." } },
+  ceros: { l: "Ceros", t: { sen: "Los puntos marcados están donde la gráfica corta el eje x: …, −2π, −π, 0, π, 2π. Se repiten cada π: x = kπ.", cos: "El coseno corta el eje x en −3π/2, −π/2, π/2 y 3π/2. Se repiten cada π a partir de π/2: x = π/2 + kπ." } },
+  extremos: { l: "Máximos y mínimos", t: { sen: "Máximos (valen 1) en −3π/2 y π/2; mínimos (valen −1) en −π/2 y 3π/2. Entre dos máximos hay una vuelta: π/2 + 2kπ.", cos: "Máximos (valen 1) en −2π, 0 y 2π; mínimos (valen −1) en −π y π. Máximos: x = 2kπ; mínimos: x = π + 2kπ." } },
+};
+function lectorHTML() {
+  return `<div class="fig" aria-label="Lector de gráfica">
+    <h3>Lector de gráfica</h3>
+    <div class="fig-ctrl"><span class="eyebrow">Función</span><div class="btns" role="group" aria-label="Función"><button class="btn" id="lf-sen" aria-pressed="true">y = sen x</button><button class="btn" id="lf-cos" aria-pressed="false">y = cos x</button></div></div>
+    <div class="fig-ctrl"><span class="eyebrow">Dato</span><div class="btns" role="group" aria-label="Dato a marcar">${Object.entries(DATOS_LECTOR).map(([k, d]) => `<button class="btn" data-lector="${k}" aria-pressed="false">${d.l}</button>`).join("")}</div></div>
+    <svg id="lector-svg" viewBox="0 0 660 250" role="img" aria-label="Gráfica entre −2π y 2π con el dato elegido marcado"></svg>
+    <p class="lector-txt" id="lector-txt">Elegí un dato para verlo marcado sobre la gráfica.</p>
+  </div>`;
+}
+function iniciarLector() {
+  let fn = "sen", dato = null;
+  const svg = document.getElementById("lector-svg");
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const x0 = 50, W = 580, cy = 120, R = 70, P = Math.PI;
+  const X = t => x0 + (t + 2 * P) / (4 * P) * W, Y = y => cy - y * R;
+  function dib() {
+    const f = fn === "sen" ? Math.sin : Math.cos, c = fn === "sen" ? col("--accent") : col("--cos");
+    const ink = col("--ink"), muted = col("--muted"), line = col("--line"), err = col("--err"), ok = col("--ok"), surf = col("--surface"), soft = col("--accent-soft");
+    let g = "";
+    if (dato === "imagen") g += `<rect x="${x0}" y="${Y(1)}" width="${W}" height="${2 * R}" fill="${soft}"/><line x1="${x0 - 14}" y1="${Y(1)}" x2="${x0 - 14}" y2="${Y(-1)}" stroke="${ink}" stroke-width="3"/><text x="${x0 - 20}" y="${cy + 4}" fill="${ink}" font-size="12" text-anchor="end" font-family="JetBrains Mono, monospace" transform="rotate(-90 ${x0 - 20} ${cy})">[−1, 1]</text>`;
+    g += `<line x1="${x0 - 6}" y1="${cy}" x2="${x0 + W + 6}" y2="${cy}" stroke="${dato === "dominio" ? ink : line}" stroke-width="${dato === "dominio" ? 2 : 1}"/><line x1="${X(0)}" y1="${Y(1) - 18}" x2="${X(0)}" y2="${Y(-1) + 18}" stroke="${line}"/>`;
+    [[-2, "−2π"], [-1.5, "−3π/2"], [-1, "−π"], [-0.5, "−π/2"], [0, "0"], [0.5, "π/2"], [1, "π"], [1.5, "3π/2"], [2, "2π"]].forEach(([k, l]) => { const xx = X(k * P); g += `<line x1="${xx}" y1="${cy - 4}" x2="${xx}" y2="${cy + 4}" stroke="${muted}"/><text x="${xx}" y="${Y(-1) + 34}" fill="${muted}" font-size="11" text-anchor="middle" font-family="JetBrains Mono, monospace">${l}</text>`; });
+    [[1, "1"], [-1, "−1"]].forEach(([k, l]) => { g += `<line x1="${X(0) - 4}" y1="${Y(k)}" x2="${X(0) + 4}" y2="${Y(k)}" stroke="${muted}"/><text x="${X(0) - 8}" y="${Y(k) + 4}" fill="${muted}" font-size="11" text-anchor="end" font-family="JetBrains Mono, monospace">${l}</text>`; });
+    let d = ""; for (let i = 0; i <= 240; i++) { const t = -2 * P + i / 240 * 4 * P; d += (i ? "L" : "M") + X(t).toFixed(1) + " " + Y(f(t)).toFixed(1); }
+    g += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2.5"/>`;
+    if (dato === "dominio") g += `<path d="M ${x0 - 6} ${cy} l 10 -6 v 12 z M ${x0 + W + 6} ${cy} l -10 -6 v 12 z" fill="${ink}"/><text x="${x0 + W / 2}" y="22" fill="${ink}" font-size="13" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">… sigue para los dos lados …</text>`;
+    if (dato === "periodo") { const a = fn === "sen" ? -1.5 * P : -2 * P, b = a + 2 * P; let dp = ""; for (let i = 0; i <= 120; i++) { const t = a + i / 120 * 2 * P; dp += (i ? "L" : "M") + X(t).toFixed(1) + " " + Y(f(t)).toFixed(1); } g += `<path d="${dp}" fill="none" stroke="${ink}" stroke-width="5" opacity=".35"/><line x1="${X(a)}" y1="${Y(1) - 14}" x2="${X(b)}" y2="${Y(1) - 14}" stroke="${ink}" stroke-width="2"/><line x1="${X(a)}" y1="${Y(1) - 20}" x2="${X(a)}" y2="${Y(1) - 8}" stroke="${ink}" stroke-width="2"/><line x1="${X(b)}" y1="${Y(1) - 20}" x2="${X(b)}" y2="${Y(1) - 8}" stroke="${ink}" stroke-width="2"/><text x="${(X(a) + X(b)) / 2}" y="${Y(1) - 22}" fill="${ink}" font-size="13" font-weight="700" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">un período = 2π</text>`; }
+    if (dato === "amplitud") { const xm = fn === "sen" ? X(0.5 * P) : X(0); g += `<line x1="${x0}" y1="${cy}" x2="${x0 + W}" y2="${cy}" stroke="${ink}" stroke-dasharray="5 4"/><line x1="${xm + 18}" y1="${cy}" x2="${xm + 18}" y2="${Y(1) + 6}" stroke="${ink}" stroke-width="2"/><path d="M ${xm + 18} ${Y(1)} l -5 9 h 10 z" fill="${ink}"/><text x="${xm + 26}" y="${Y(0.5)}" fill="${ink}" font-size="13" font-weight="700" font-family="Atkinson Hyperlegible, sans-serif">amplitud = 1</text>`; }
+    if (dato === "ceros") { const zs = fn === "sen" ? [-2, -1, 0, 1, 2] : [-1.5, -0.5, 0.5, 1.5]; zs.forEach(k => { g += `<circle cx="${X(k * P)}" cy="${cy}" r="6" fill="${surf}" stroke="${ink}" stroke-width="2.5"/>`; }); }
+    if (dato === "extremos") { const mx = fn === "sen" ? [-1.5, 0.5] : [-2, 0, 2], mn = fn === "sen" ? [-0.5, 1.5] : [-1, 1]; mx.forEach(k => { g += `<circle cx="${X(k * P)}" cy="${Y(1)}" r="6" fill="${ok}" stroke="${surf}" stroke-width="2"/><text x="${X(k * P)}" y="${Y(1) - 12}" fill="${ok}" font-size="12" font-weight="700" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">máx</text>`; }); mn.forEach(k => { g += `<circle cx="${X(k * P)}" cy="${Y(-1)}" r="6" fill="${err}" stroke="${surf}" stroke-width="2"/><text x="${X(k * P)}" y="${Y(-1) + 22}" fill="${err}" font-size="12" font-weight="700" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif">mín</text>`; }); }
+    svg.innerHTML = g;
+    document.getElementById("lector-txt").textContent = dato ? DATOS_LECTOR[dato].t[fn] : "Elegí un dato para verlo marcado sobre la gráfica.";
+    document.getElementById("lf-sen").setAttribute("aria-pressed", fn === "sen"); document.getElementById("lf-cos").setAttribute("aria-pressed", fn === "cos");
+    document.querySelectorAll("[data-lector]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lector === dato));
+  }
+  document.getElementById("lf-sen").onclick = () => { fn = "sen"; dib(); };
+  document.getElementById("lf-cos").onclick = () => { fn = "cos"; dib(); };
+  document.querySelectorAll("[data-lector]").forEach(b => b.onclick = () => { dato = dato === b.dataset.lector ? null : b.dataset.lector; dib(); });
+  dib();
+}
+
+render();
+ghConectar();
+</script>
+
+</html>
