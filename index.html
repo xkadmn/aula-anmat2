@@ -237,7 +237,7 @@ s { color: var(--err); text-decoration-thickness: 2px; }
     </div>
     <div class="top-stats">
       <div class="stat"><span class="eyebrow">Faltan</span><b id="dias">—</b><span class="sync">días para el examen</span></div>
-      <div class="stat"><span class="eyebrow">Temas terminados</span><b id="hechos">0 de 19</b><div class="bar"><i id="barra" style="width:0%"></i></div></div>
+      <div class="stat"><span class="eyebrow">Temas terminados</span><b id="hechos">0 de 19</b><div class="bar"><i id="barra" style="width:0%"></i></div><span class="sync" id="empezados"></span></div>
     </div>
   </header>
 
@@ -1315,6 +1315,8 @@ function render() {
   const hechos = temasReales.filter(t => temaHecho(t.id)).length;
   document.getElementById("hechos").textContent = `${hechos} de ${temasReales.length}`;
   document.getElementById("barra").style.width = (hechos / temasReales.length * 100) + "%";
+  const empezados = temasReales.filter(t => !temaHecho(t.id) && temaEmpezado(t.id)).length;
+  document.getElementById("empezados").textContent = empezados ? empezados + (empezados === 1 ? " tema empezado" : " temas empezados") : "";
   const lista = document.getElementById("lista-temas");
   lista.innerHTML = "";
   TEMAS.forEach((t, i) => {
