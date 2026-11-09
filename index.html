@@ -274,9 +274,10 @@ s { color: var(--err); text-decoration-thickness: 2px; }
 
   <section class="gh" id="v-avance" hidden>
     <h2>Guardar mi avance</h2>
+    <p class="fin" id="gh-con-msg" hidden><b>✓ Conectado</b><span>Tu avance se guarda solo cada vez que marcás algo. No tenés que tocar nada más.</span></p>
     <p>Estado: <b id="gh-estado">sin conectar (el avance queda solo en este navegador)</b></p>
-    <div class="gh-cuerpo">
-      <p>Conectado, tu avance se guarda en tu repositorio y se ve igual en el celular y en la computadora. Claude también lo puede leer para actualizar el plan.</p>
+    <div class="gh-cuerpo" id="gh-sin">
+      <p>Al conectarlo, tu avance se guarda en tu repositorio y se ve igual en el celular y en la computadora. Claude también lo puede leer para actualizar el plan.</p>
       <ol>
         <li>En GitHub: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">crear un token nuevo</a> (Fine-grained token).</li>
         <li>En <b>Repository access</b> elegí <b>Only select repositories</b> y marcá <b>xkadmn/anmat</b>.</li>
@@ -286,8 +287,6 @@ s { color: var(--err); text-decoration-thickness: 2px; }
       <input type="password" id="gh-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="Token de GitHub">
       <div class="fila">
         <button class="prim" id="gh-conectar">Conectar</button>
-        <button id="gh-ahora">Guardar ahora</button>
-        <button id="gh-quitar">Desconectar este dispositivo</button>
       </div>
     </div>
   </section>
@@ -1214,9 +1213,16 @@ let ghSha = null, ghTimer = null, ghOcupado = false, ghPendiente = false;
 function b64enc(s) { return btoa(unescape(encodeURIComponent(s))); }
 function b64dec(s) { return decodeURIComponent(escape(atob(s.replace(/\s/g, "")))); }
 function hora() { return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }); }
-let ghTexto = "sin conectar";
-function setGh(txt) { ghTexto = txt; const sy = document.getElementById("sync"); if (sy) sy.textContent = ghToken ? "Tu avance se guarda en GitHub: lo ves igual en el celular y en la compu." : "Tu avance se guarda solo en este navegador."; for (const id of ["gh-estado", "menu-gh"]) { const el = document.getElementById(id); if (el) el.textContent = txt; } }
+let ghTexto = "sin conectar", ghFalla = false;
+function setGh(txt) {
+  ghTexto = txt;
+  if (txt.startsWith("✓")) ghFalla = false;
+  const conectado = !!ghToken && !ghFalla;
+  document.getElementById("gh-sin").hidden = conectado;
+  document.getElementById("gh-con-msg").hidden = !conectado;
+  const sy = document.getElementById("sync"); if (sy) sy.textContent = ghToken ? "Tu avance se guarda en GitHub: lo ves igual en el celular y en la compu." : "Tu avance se guarda solo en este navegador."; for (const id of ["gh-estado", "menu-gh"]) { const el = document.getElementById(id); if (el) el.textContent = txt; } }
 function ghError(status) {
+  ghFalla = status === 401 || status === 403 || status === 404;
   if (status === 401) return "el token no es válido o venció: creá uno nuevo";
   if (status === 403 || status === 404) return "el token no tiene permiso de escritura sobre xkadmn/anmat";
   return "no se pudo conectar (¿sin internet?). Tu avance quedó en este navegador y se reintenta solo";
@@ -1276,8 +1282,6 @@ document.getElementById("gh-conectar").onclick = () => {
   document.getElementById("gh-token").value = "";
   ghConectar();
 };
-document.getElementById("gh-ahora").onclick = () => { if (!ghToken) { setGh("primero conectá con el token"); return; } clearTimeout(ghTimer); ghTimer = null; ghEscribir(); };
-document.getElementById("gh-quitar").onclick = () => { ghToken = ""; ghSha = null; try { localStorage.removeItem(GH_KEY); } catch (e) {} setGh("sin conectar (el avance queda solo en este navegador)"); };
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden" && ghTimer) { clearTimeout(ghTimer); ghTimer = null; ghEscribir(); }
   if (document.visibilityState === "visible" && ghToken && !ghOcupado && !ghTimer) ghConectar();
